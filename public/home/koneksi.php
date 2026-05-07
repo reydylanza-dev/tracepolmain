@@ -1,14 +1,16 @@
 <?php
 // Koneksi ke database hosting eksternal
 // Gunakan localhost untuk koneksi internal di server yang sama
-$servername = "localhost";
-$username = "root";
-$password = "";
-$db = "demo_salut";
-$database = "demo_salut";
+
+$host = getenv('103.58.102.59');
+$port = getenv('3306') ?: '3306';
+$db   = getenv('salutpur_demo_trace');
+$user = getenv('salutpur_demo');
+$pass = getenv('1t6NE0!wlmCs]vlO');
+
 // Create connection
-$koneksi = mysqli_connect($servername, $username, $password, $database);
-$link = mysqli_connect($servername, $username, $password, $database);
+$koneksi = new mysqli($host, $user, $pass, $db, $port);
+$link = new mysqli($host, $user, $pass, $db, $port);
 
 // Check connection
 if (!$koneksi) {
