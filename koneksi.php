@@ -1,7 +1,7 @@
 <?php
 // Koneksi ke database hosting eksternal
 // Gunakan localhost untuk koneksi internal di server yang sama
-<?php
+
 $host = getenv('103.58.102.59');
 $port = getenv('3306') ?: '3306';
 $db   = getenv('salutpur_demo_trace');
