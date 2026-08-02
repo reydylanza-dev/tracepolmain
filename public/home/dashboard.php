@@ -8,13 +8,224 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: login.php");
     exit;
 }
-if (!in_array($_SESSION["position"] ?? '', ['admin', 'pimpinan'])) {
-    header("location: home/index.php");
-    exit;
-}
 
+// Cek akses: boleh masuk jika position ATAU kolom role di DB adalah 'admin' atau 'pimpinan'
 require_once "koneksi.php";
 mysqli_query($link, "SET time_zone = '+07:00'");
+
+$_db_role = null;
+if (!empty($_SESSION["id"])) {
+    $stmt_role = mysqli_prepare($link, "SELECT role FROM credentials WHERE id = ? LIMIT 1");
+    if ($stmt_role) {
+        mysqli_stmt_bind_param($stmt_role, "i", $_SESSION["id"]);
+        mysqli_stmt_execute($stmt_role);
+        mysqli_stmt_bind_result($stmt_role, $_db_role);
+        mysqli_stmt_fetch($stmt_role);
+        mysqli_stmt_close($stmt_role);
+    }
+}
+
+$_akses_diizinkan = in_array($_SESSION["position"] ?? '', ['admin', 'pimpinan'])
+                 || in_array($_db_role ?? '', ['admin', 'pimpinan']);
+
+if (!$_akses_diizinkan) {
+    ob_end_clean();
+    $redirect_url = "http://localhost/absensi/home/index.php";
+    ?>
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Akses Ditolak</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+            /* Animated background particles */
+            body::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background:
+                    radial-gradient(circle at 20% 50%, rgba(239,68,68,0.07) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(239,68,68,0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 60% 80%, rgba(239,68,68,0.04) 0%, transparent 40%);
+                pointer-events: none;
+            }
+            .card {
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(239,68,68,0.25);
+                border-radius: 20px;
+                padding: 52px 48px 44px;
+                max-width: 460px;
+                width: 90%;
+                text-align: center;
+                backdrop-filter: blur(16px);
+                box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 32px 64px rgba(0,0,0,0.5), 0 0 80px rgba(239,68,68,0.08);
+                animation: fadeUp .55s cubic-bezier(.22,1,.36,1) both;
+                position: relative;
+            }
+            @keyframes fadeUp {
+                from { opacity:0; transform:translateY(28px) scale(.97); }
+                to   { opacity:1; transform:translateY(0) scale(1); }
+            }
+            .icon-wrap {
+                width: 88px;
+                height: 88px;
+                border-radius: 50%;
+                background: rgba(239,68,68,0.12);
+                border: 2px solid rgba(239,68,68,0.35);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 28px;
+                animation: pulse 2.5s ease-in-out infinite;
+            }
+            @keyframes pulse {
+                0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+                50%      { box-shadow: 0 0 0 14px rgba(239,68,68,0); }
+            }
+            .icon-wrap i {
+                font-size: 36px;
+                color: #ef4444;
+            }
+            h1 {
+                color: #f8fafc;
+                font-size: 22px;
+                font-weight: 700;
+                letter-spacing: -0.3px;
+                margin-bottom: 10px;
+            }
+            p.sub {
+                color: #94a3b8;
+                font-size: 14.5px;
+                line-height: 1.6;
+                margin-bottom: 32px;
+            }
+            .badge-user {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 999px;
+                padding: 5px 14px;
+                font-size: 12.5px;
+                color: #cbd5e1;
+                margin-bottom: 32px;
+            }
+            .badge-user i { color: #64748b; }
+            /* Progress bar redirect */
+            .redirect-info {
+                font-size: 13px;
+                color: #64748b;
+                margin-bottom: 10px;
+            }
+            .redirect-info span {
+                color: #f87171;
+                font-weight: 600;
+            }
+            .progress-bar-wrap {
+                width: 100%;
+                height: 4px;
+                background: rgba(255,255,255,0.07);
+                border-radius: 99px;
+                overflow: hidden;
+                margin-bottom: 28px;
+            }
+            .progress-bar-fill {
+                height: 100%;
+                width: 100%;
+                background: linear-gradient(90deg, #ef4444, #f97316);
+                border-radius: 99px;
+                transform-origin: left;
+                animation: shrink 4s linear forwards;
+            }
+            @keyframes shrink {
+                from { transform: scaleX(1); }
+                to   { transform: scaleX(0); }
+            }
+            .btn-back {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: #fff;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 12px 28px;
+                border-radius: 10px;
+                transition: opacity .2s, transform .2s;
+                box-shadow: 0 4px 20px rgba(239,68,68,0.35);
+            }
+            .btn-back:hover { opacity: .88; transform: translateY(-1px); }
+            .divider {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #334155;
+                font-size: 12px;
+                margin: 20px 0;
+            }
+            .divider::before, .divider::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: rgba(255,255,255,0.06);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="icon-wrap">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+
+            <h1>Akses Ditolak</h1>
+            <p class="sub">Halaman ini hanya dapat diakses oleh <strong style="color:#f8fafc;">Admin</strong> atau <strong style="color:#f8fafc;">Pimpinan</strong>. Anda tidak memiliki izin untuk masuk ke sini.</p>
+
+            <?php if (!empty($_SESSION['username'])): ?>
+            <div class="badge-user">
+                <i class="fas fa-user-circle"></i>
+                Login sebagai: <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>
+            </div>
+            <?php endif; ?>
+
+            <p class="redirect-info">Mengalihkan dalam <span id="countdown">4</span> detik...</p>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill"></div>
+            </div>
+
+            <a href="<?= $redirect_url ?>" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+        </div>
+
+        <script>
+            const url  = <?= json_encode($redirect_url) ?>;
+            let sisa   = 4;
+            const el   = document.getElementById('countdown');
+            const timer = setInterval(() => {
+                sisa--;
+                el.textContent = sisa;
+                if (sisa <= 0) { clearInterval(timer); window.location.href = url; }
+            }, 1000);
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 
 // ── AJAX: filter tabel realtime (ditangani lebih awal agar tidak ada output sebelum JSON) ──
 if (isset($_GET['ajax_filter'])) {
@@ -145,16 +356,17 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1') {
 
     if ($tipe_a === 'dosen') {
         $sql_det = "SELECT tanggal, jenis_kegiatan AS kegiatan, jam_mulai AS jam_masuk,
-                           jam_selesai AS jam_keluar, lokasi, status_kehadiran, keterangan, metode_absensi
+                           jam_selesai AS jam_keluar, lokasi, status_kehadiran, keterangan,
+                           metode_absensi, foto_evidence
                     FROM absensi_dosen
                     WHERE dosen_nik=? AND MONTH(tanggal)=? AND YEAR(tanggal)=?
-                    ORDER BY tanggal ASC";
+                    ORDER BY tanggal DESC";
     } else {
         $sql_det = "SELECT tanggal, NULL AS kegiatan, jam_masuk, jam_keluar,
                            lokasi_masuk AS lokasi, status_kehadiran, keterangan, metode_absensi
                     FROM absensi_staff
                     WHERE staff_nik=? AND MONTH(tanggal)=? AND YEAR(tanggal)=?
-                    ORDER BY tanggal ASC";
+                    ORDER BY tanggal DESC";
     }
 
     $out_det = [];
@@ -415,37 +627,96 @@ function pct($hadir, $total) {
         .brand-icon i { color:var(--yellow); font-size:15px; }
         .brand-text .t1 { font-size:14px; font-weight:800; color:var(--blue); line-height:1.2; transition:color .35s; }
         .brand-text .t2 { font-size:9.5px; color:var(--gray-400); text-transform:uppercase; letter-spacing:.5px; }
-        .topbar-right { display:flex; align-items:center; gap:10px; }
-        .dark-toggle {
-            width:40px; height:22px; background:var(--gray-200);
-            border:1.5px solid var(--gray-300); border-radius:999px;
-            cursor:pointer; position:relative; transition:all .3s;
-        }
-        .dark-toggle::after {
-            content:''; position:absolute; top:2px; right:2px;
-            width:14px; height:14px; background:var(--yellow); border-radius:50%;
-            transition:all .3s; box-shadow:0 1px 3px rgba(0,0,0,.2);
-        }
-        .btn-logout {
-            height:34px; padding:0 14px; border-radius:9px;
-            background:var(--gray-100); border:1px solid var(--gray-200);
-            display:flex; align-items:center; gap:6px;
-            color:var(--gray-600); font-size:12.5px; font-weight:700;
-            font-family:"Plus Jakarta Sans",sans-serif;
-            cursor:pointer; text-decoration:none; transition:all .2s;
-        }
-        .btn-logout:hover { background:#fef2f2; color:var(--red); border-color:#fecaca; }
-        .user-chip {
-            display:flex; align-items:center; gap:7px;
-            background:var(--gray-100); border:1px solid var(--gray-200);
-            border-radius:999px; padding:4px 12px 4px 4px;
-        }
-        .user-avatar {
-            width:26px; height:26px; border-radius:50%;
-            background:var(--blue-mid);
+        .topbar-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .btn-sidebar-toggle {
+            width:38px; height:38px;
+            background:linear-gradient(135deg,var(--blue),var(--blue-mid));
+            border:none; border-radius:10px;
             display:flex; align-items:center; justify-content:center;
-            color:var(--white); font-size:11px; font-weight:700;
+            color:var(--yellow); font-size:15px;
+            cursor:pointer; transition:all .2s;
         }
+        .btn-sidebar-toggle:hover { opacity:.85; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position:fixed; top:0; left:0;
+            height:100vh; width:248px;
+            background:linear-gradient(180deg,var(--blue) 0%,var(--blue-mid) 100%);
+            z-index:300;
+            display:flex; flex-direction:column;
+            box-shadow:4px 0 24px rgba(0,0,0,.22);
+            transform:translateX(-100%);
+            transition:transform .3s cubic-bezier(.4,0,.2,1);
+        }
+        .sidebar.open { transform:translateX(0); }
+        .sidebar-backdrop {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,.45); z-index:299;
+            backdrop-filter:blur(2px);
+        }
+        .sidebar-backdrop.open { display:block; }
+        .sidebar-header {
+            display:flex; align-items:center; gap:10px;
+            padding:18px 16px 14px;
+            border-bottom:1px solid rgba(255,255,255,.12);
+        }
+        .sidebar-brand-icon {
+            width:36px; height:36px; border-radius:10px;
+            background:rgba(255,215,0,.18);
+            display:flex; align-items:center; justify-content:center; flex-shrink:0;
+        }
+        .sidebar-brand-icon i { color:var(--yellow); font-size:15px; }
+        .sidebar-brand-text .sb-t1 { font-size:13px; font-weight:800; color:var(--white); line-height:1.2; }
+        .sidebar-brand-text .sb-t2 { font-size:9px; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.5px; }
+        .sidebar-close {
+            margin-left:auto; background:rgba(255,255,255,.1);
+            border:none; border-radius:8px;
+            width:30px; height:30px;
+            display:flex; align-items:center; justify-content:center;
+            color:rgba(255,255,255,.7); font-size:14px;
+            cursor:pointer; transition:background .2s; flex-shrink:0;
+        }
+        .sidebar-close:hover { background:rgba(255,255,255,.2); }
+        .sidebar-user {
+            display:flex; align-items:center; gap:10px;
+            padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.1);
+        }
+        .sidebar-user-avatar {
+            width:36px; height:36px; border-radius:50%;
+            background:rgba(255,215,0,.2); border:2px solid rgba(255,215,0,.4);
+            display:flex; align-items:center; justify-content:center;
+            color:var(--yellow); font-size:14px; font-weight:800; flex-shrink:0;
+        }
+        .sidebar-user-name { font-size:13px; font-weight:700; color:var(--white); }
+        .sidebar-user-role { font-size:10.5px; color:rgba(255,255,255,.5); }
+        .sidebar-section-label {
+            font-size:9.5px; font-weight:700;
+            color:rgba(255,255,255,.38);
+            text-transform:uppercase; letter-spacing:1px;
+            padding:16px 16px 6px;
+        }
+        .sidebar-nav { flex:1; overflow-y:auto; padding:4px 10px; }
+        .sidebar-link {
+            display:flex; align-items:center; gap:11px;
+            padding:10px 12px; border-radius:10px;
+            text-decoration:none; color:rgba(255,255,255,.75);
+            font-size:13px; font-weight:600;
+            transition:background .2s, color .2s; margin-bottom:2px;
+        }
+        .sidebar-link i { font-size:14px; width:18px; text-align:center; flex-shrink:0; }
+        .sidebar-link:hover { background:rgba(255,255,255,.1); color:var(--white); }
+        .sidebar-link.active { background:rgba(255,215,0,.15); color:var(--yellow); }
+        .sidebar-link.active i { color:var(--yellow); }
+        .sidebar-footer { padding:14px 10px; border-top:1px solid rgba(255,255,255,.1); }
+        .sidebar-link-logout {
+            display:flex; align-items:center; gap:11px;
+            padding:10px 12px; border-radius:10px;
+            text-decoration:none; color:rgba(255,100,100,.8);
+            font-size:13px; font-weight:600; transition:background .2s, color .2s;
+        }
+        .sidebar-link-logout i { font-size:14px; width:18px; text-align:center; }
+        .sidebar-link-logout:hover { background:rgba(220,38,38,.15); color:#fca5a5; }
         .user-name { font-size:12px; font-weight:700; color:var(--gray-700); }
 
         /* ── LAYOUT ── */
@@ -535,6 +806,16 @@ function pct($hadir, $total) {
         }
         .btn-export:hover { box-shadow:0 4px 14px rgba(0,51,102,.3); transform:translateY(-1px); }
 
+        .btn-export-dosen {
+            height:36px; padding:0 16px; border-radius:9px;
+            background:linear-gradient(135deg,#6d28d9,#5b21b6);
+            color:var(--white); border:none; cursor:pointer;
+            font-size:12px; font-weight:700; font-family:"Plus Jakarta Sans",sans-serif;
+            display:flex; align-items:center; gap:6px; transition:all .2s;
+            text-decoration:none; white-space:nowrap;
+        }
+        .btn-export-dosen:hover { box-shadow:0 4px 14px rgba(109,40,217,.35); transform:translateY(-1px); }
+
         /* ── INFO BAR ── */
         .info-bar {
             display:flex; align-items:center; justify-content:space-between;
@@ -547,6 +828,35 @@ function pct($hadir, $total) {
             background:var(--white); border:1px solid var(--gray-200);
             border-radius:18px; overflow:hidden;
             transition:background .35s, border-color .35s;
+        }
+
+        /* Wrapper agar tabel bisa digeser kiri-kanan di mobile */
+        .table-scroll-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 18px;
+        }
+
+        /* Indikator swipe (hanya muncul di layar kecil) */
+        .table-scroll-hint {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .table-scroll-hint {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                color: var(--gray-400);
+                margin-bottom: 8px;
+                justify-content: flex-end;
+            }
+            .table-scroll-hint i { font-size: 12px; }
+
+            /* Min-width agar kolom tidak gepeng */
+            .table-scroll-wrap table {
+                min-width: 700px;
+            }
         }
 
         table { width:100%; border-collapse:collapse; }
@@ -700,6 +1010,8 @@ function pct($hadir, $total) {
         .det-jam i { font-size:9px; color:var(--gray-300); margin-right:2px; }
         .det-lok  { font-size:11px; color:var(--gray-400); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .det-lok i { font-size:9px; margin-right:2px; }
+        .btn-maps { display:inline-flex; align-items:center; gap:4px; background:rgba(34,197,94,0.12); color:#22c55e; border:1px solid rgba(34,197,94,0.3); border-radius:6px; padding:2px 8px; font-size:11px; font-weight:500; text-decoration:none; transition:background .2s,border-color .2s; white-space:nowrap; }
+        .btn-maps:hover { background:rgba(34,197,94,0.22); border-color:rgba(34,197,94,0.55); color:#4ade80; }
 
         .badge-status {
             font-size:10.5px; font-weight:700; padding:2px 8px;
@@ -713,6 +1025,87 @@ function pct($hadir, $total) {
 
         .det-empty { text-align:center; padding:32px; color:var(--gray-400); }
         .det-empty i { font-size:28px; display:block; margin-bottom:8px; color:var(--gray-300); }
+
+        /* ── EVIDENCE THUMBNAIL ── */
+        .det-evidence { margin-top:6px; }
+        .ev-thumb-btn {
+            display:inline-flex; align-items:center; gap:8px;
+            background:#f0f7ff; border:1px solid #bfdbfe;
+            border-radius:8px; padding:4px 10px 4px 4px;
+            cursor:pointer; transition:background .18s, border-color .18s;
+        }
+        .ev-thumb-btn:hover { background:#dbeafe; border-color:#93c5fd; }
+        .ev-thumb {
+            width:40px; height:40px; border-radius:5px;
+            object-fit:cover; flex-shrink:0;
+            border:1px solid rgba(0,0,0,.08);
+        }
+        .ev-label { font-size:11.5px; font-weight:600; color:#1d4ed8; }
+        .ev-label i { margin-right:3px; font-size:11px; }
+
+        /* ── EVIDENCE LIGHTBOX ── */
+        #evidenceLightbox {
+            display:none; position:fixed; inset:0; z-index:9999;
+            align-items:center; justify-content:center;
+        }
+        #evidenceLightbox.open { display:flex; }
+        .ev-lb-backdrop {
+            position:absolute; inset:0;
+            background:rgba(0,0,0,.72); backdrop-filter:blur(4px);
+        }
+        .ev-lb-box {
+            position:relative; z-index:1;
+            background:#fff; border-radius:16px;
+            padding:0; max-width:88vw; max-height:90vh;
+            display:flex; flex-direction:column;
+            box-shadow:0 24px 64px rgba(0,0,0,.45);
+            animation:lbIn .22s cubic-bezier(.22,1,.36,1);
+            overflow:hidden;
+        }
+        @keyframes lbIn { from{opacity:0;transform:scale(.93)} to{opacity:1;transform:scale(1)} }
+        .ev-lb-header {
+            padding:14px 18px; font-size:13.5px; font-weight:700;
+            color:var(--blue); border-bottom:1px solid var(--gray-200);
+            display:flex; align-items:center; gap:8px;
+        }
+        .ev-lb-header i { color:var(--blue-light); }
+        .ev-lb-close {
+            position:absolute; top:10px; right:12px;
+            background:var(--gray-100); border:none; border-radius:8px;
+            width:30px; height:30px; display:flex; align-items:center;
+            justify-content:center; cursor:pointer; color:var(--gray-600);
+            font-size:14px; transition:background .18s;
+        }
+        .ev-lb-close:hover { background:var(--gray-200); }
+        .ev-lb-imgwrap {
+            flex:1; overflow:auto; display:flex;
+            align-items:center; justify-content:center; padding:16px;
+            background:var(--gray-50); min-height:120px;
+        }
+        .ev-lb-imgwrap img {
+            max-width:100%; max-height:calc(90vh - 140px);
+            border-radius:8px; display:block;
+            box-shadow:0 4px 24px rgba(0,0,0,.15);
+        }
+        .ev-lb-dl {
+            display:flex; align-items:center; justify-content:center; gap:7px;
+            padding:12px; font-size:13px; font-weight:600;
+            color:var(--blue-light); background:#f0f7ff;
+            border-top:1px solid var(--gray-200); text-decoration:none;
+            transition:background .18s;
+        }
+        .ev-lb-dl:hover { background:#dbeafe; }
+
+        /* dark mode evidence */
+        body.dark .ev-thumb-btn { background:rgba(59,130,246,.12); border-color:rgba(59,130,246,.3); }
+        body.dark .ev-thumb-btn:hover { background:rgba(59,130,246,.22); }
+        body.dark .ev-label { color:#93c5fd; }
+        body.dark .ev-lb-box { background:var(--dm-card); }
+        body.dark .ev-lb-header { color:#93c5fd; border-color:var(--dm-border); }
+        body.dark .ev-lb-imgwrap { background:var(--dm-bg); }
+        body.dark .ev-lb-dl { color:#93c5fd; background:var(--dm-card2); border-color:var(--dm-border); }
+        body.dark .ev-lb-dl:hover { background:#112244; }
+        body.dark .ev-lb-close { background:var(--dm-card2); color:var(--dm-text); }
 
         .modal-loading { text-align:center; padding:40px; color:var(--gray-400); }
         .modal-loading i { font-size:24px; display:block; margin-bottom:8px; color:var(--blue-light); }
@@ -764,9 +1157,60 @@ function pct($hadir, $total) {
         body.dark .det-date .dt { color:var(--yellow); }
         body.dark .info-bar     { color:var(--dm-muted); }
         body.dark .info-bar b   { color:var(--yellow); }
+        body.dark .table-scroll-hint { color:var(--dm-muted); }
     </style>
 </head>
 <body>
+
+<!-- SIDEBAR -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand-icon"><i class="fas fa-chart-bar"></i></div>
+        <div class="sidebar-brand-text">
+            <div class="sb-t1">Dashboard Absensi</div>
+            <div class="sb-t2">Politeknik Masamy Internasional</div>
+        </div>
+        <button class="sidebar-close" id="sidebarClose"><i class="fas fa-xmark"></i></button>
+    </div>
+
+    <div class="sidebar-user">
+        <div class="sidebar-user-avatar"><?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?></div>
+        <div>
+            <div class="sidebar-user-name"><?php echo htmlspecialchars($_SESSION['username']); ?></div>
+            <div class="sidebar-user-role"><?php echo ucfirst($_SESSION['position'] ?? 'Admin'); ?></div>
+        </div>
+    </div>
+
+    <div class="sidebar-nav">
+        <div class="sidebar-section-label">Dashboard</div>
+        <a href="dashboard.php" class="sidebar-link active">
+            <i class="fas fa-chart-bar"></i> Laporan Kehadiran
+        </a>
+        <a href="export_absensi.php" class="sidebar-link">
+            <i class="fas fa-file-excel"></i> Export Data
+        </a>
+        <a href="export_absensi_dosen.php" class="sidebar-link">
+            <i class="fas fa-chalkboard-teacher"></i> Absensi Dosen
+        </a>
+
+        <div class="sidebar-section-label">Navigasi</div>
+        <a href="index.php" class="sidebar-link">
+            <i class="fas fa-house"></i> Beranda
+        </a>
+
+        <div class="sidebar-section-label">Tampilan</div>
+        <a href="#" class="sidebar-link" id="sidebarDarkToggle">
+            <i class="fas fa-moon"></i> <span id="sidebarDarkLabel">Mode Gelap</span>
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="../logout.php" class="sidebar-link-logout">
+            <i class="fas fa-right-from-bracket"></i> Keluar
+        </a>
+    </div>
+</aside>
 
 <!-- TOP BAR -->
 <header class="top-bar">
@@ -778,12 +1222,9 @@ function pct($hadir, $total) {
         </div>
     </a>
     <div class="topbar-right">
-        <div class="user-chip">
-            <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?></div>
-            <span class="user-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
-        </div>
-        <button class="dark-toggle" id="darkToggle" aria-label="Toggle dark mode"></button>
-        <a href="../logout.php" class="btn-logout"><i class="fas fa-right-from-bracket"></i> Keluar</a>
+        <button class="btn-sidebar-toggle" id="btnSidebarToggle" title="Menu">
+            <i class="fas fa-bars"></i>
+        </button>
     </div>
 </header>
 
@@ -858,6 +1299,12 @@ function pct($hadir, $total) {
            class="btn-export">
             <i class="fas fa-file-excel"></i> Export
         </a>
+
+        <!-- Export Absensi Dosen per Jenis Kegiatan -->
+        <a id="btnExportDosen" href="export_absensi_dosen.php?bulan=<?php echo $filter_bulan; ?>&tahun=<?php echo $filter_tahun; ?>"
+           class="btn-export-dosen">
+            <i class="fas fa-chalkboard-teacher"></i> Absensi Dosen
+        </a>
     </div>
 
     <!-- INFO BAR -->
@@ -867,25 +1314,30 @@ function pct($hadir, $total) {
     </div>
 
     <!-- TABEL -->
+    <div class="table-scroll-hint">
+        <i class="fas fa-left-right"></i> Geser untuk melihat selengkapnya
+    </div>
     <div class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:32%">Pegawai</th>
-                    <th>Tipe</th>
-                    <th>Kehadiran</th>
-                    <th>Rekap</th>
-                    <th>Terakhir Absen</th>
-                    <th style="text-align:center;">Detail</th>
-                </tr>
-            </thead>
-            <tbody id="tabelBody">
-                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400);">
-                    <i class="fas fa-spinner fa-spin" style="font-size:20px;display:block;margin-bottom:8px;"></i>
-                    Memuat data...
-                </td></tr>
-            </tbody>
-        </table>
+        <div class="table-scroll-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:32%">Pegawai</th>
+                        <th>Tipe</th>
+                        <th>Kehadiran</th>
+                        <th>Rekap</th>
+                        <th>Terakhir Absen</th>
+                        <th style="text-align:center;">Detail</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelBody">
+                    <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400);">
+                        <i class="fas fa-spinner fa-spin" style="font-size:20px;display:block;margin-bottom:8px;"></i>
+                        Memuat data...
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- PAGINATION -->
@@ -929,15 +1381,7 @@ const state = {
 const namaBulanJS = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const namaHariJS  = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 
-// ── Dark mode ─────────────────────────────────────────────────────────────────
-(function(){
-    const body = document.body;
-    if (localStorage.getItem('absensiDark') === '1') body.classList.add('dark');
-    document.getElementById('darkToggle').addEventListener('click', () => {
-        body.classList.toggle('dark');
-        localStorage.setItem('absensiDark', body.classList.contains('dark') ? '1' : '0');
-    });
-})();
+// ── Dark mode (dihandle oleh blok di bawah) ───────────────────────────────────
 
 // ── Badge helpers ─────────────────────────────────────────────────────────────
 const badgeStatus = {
@@ -959,6 +1403,7 @@ function fetchTabel(resetHal = true) {
     const urlParams = new URLSearchParams({tipe:state.tipe,bulan:state.bulan,tahun:state.tahun,cari:state.cari,hal:state.hal});
     history.replaceState(null, '', 'dashboard.php?' + urlParams.toString());
     document.getElementById('btnExport').href = `export_absensi.php?bulan=${state.bulan}&tahun=${state.tahun}&tipe=${state.tipe}`;
+    document.getElementById('btnExportDosen').href = `export_absensi_dosen.php?bulan=${state.bulan}&tahun=${state.tahun}`;
     document.getElementById('tabelBody').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400);"><i class="fas fa-spinner fa-spin" style="font-size:20px;display:block;margin-bottom:8px;color:var(--blue-light);"></i>Memuat data...</td></tr>`;
     document.getElementById('paginationWrap').innerHTML = '';
     document.getElementById('infoCount').innerHTML = 'Memuat...';
@@ -1068,12 +1513,55 @@ function renderDetail(rows){
         const dt=new Date(r.tanggal),day=dt.getDate(),mon=namaBulanJS[dt.getMonth()+1].substring(0,3).toUpperCase(),hari=namaHariJS[dt.getDay()];
         const jamM=r.jam_masuk?r.jam_masuk.substring(0,5):'--:--',jamK=r.jam_keluar?r.jam_keluar.substring(0,5):'--:--';
         const kg=r.kegiatan?`<span class="badge-kg">${r.kegiatan.replace(/_/g,' ')}</span>`:'';
-        const lok=r.lokasi?`<div class="det-lok"><i class="fas fa-location-dot"></i>${r.lokasi}</div>`:'';
+        const lok=r.lokasi?(()=>{
+            const raw=r.lokasi.trim();
+            // Format: "Nama Lokasi [-8.229...,114.384...]"
+            const matchBracket=raw.match(/\[(-?\d+\.\d+),\s*(-?\d+\.\d+)\]/);
+            // Format koordinat langsung: "-8.229...,114.384..."
+            const matchPlain=raw.match(/^(-?\d+\.\d+),\s*(-?\d+\.\d+)$/);
+            let mapsUrl, label;
+            if(matchBracket){
+                const lat=matchBracket[1], lng=matchBracket[2];
+                mapsUrl=`https://www.google.com/maps?q=${lat},${lng}`;
+                label=raw.replace(/\s*\[.*?\]$/,'').trim()||`${lat}, ${lng}`;
+            } else if(matchPlain){
+                const lat=matchPlain[1], lng=matchPlain[2];
+                mapsUrl=`https://www.google.com/maps?q=${lat},${lng}`;
+                label=raw;
+            } else {
+                return `<div class="det-lok"><i class="fas fa-location-dot"></i> ${raw}</div>`;
+            }
+            return `<div class="det-lok"><a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-maps"><i class="fas fa-location-dot"></i> ${label} <i class="fas fa-arrow-up-right-from-square" style="font-size:10px;margin-left:2px;"></i></a></div>`;
+        })():'';
         const ket=r.keterangan?`<div class="det-lok" style="font-style:italic;color:var(--gray-400);">"${r.keterangan}"</div>`:'';
-        html+=`<div class="det-item"><div class="det-date"><div class="dd">${hari}</div><div class="dt">${day}</div><div class="dm">${mon}</div></div><div class="det-info"><div class="det-top">${badge(r.status_kehadiran)} ${kg}</div><div class="det-jam"><i class="fas fa-right-to-bracket"></i> ${jamM} &nbsp;—&nbsp; <i class="fas fa-right-from-bracket"></i> ${jamK}</div>${lok}${ket}</div></div>`;
+        // Evidence foto (hanya dosen)
+        const baseUrl=window.location.origin+'/';
+        const evidenceHtml=r.foto_evidence
+            ?`<div class="det-evidence"><button class="ev-thumb-btn" onclick="bukaEvidence('${baseUrl}${r.foto_evidence}')" title="Lihat foto evidence"><img src="${baseUrl}${r.foto_evidence}" alt="Evidence" class="ev-thumb"><span class="ev-label"><i class="fas fa-image"></i> Lihat Evidence</span></button></div>`
+            :'';
+        html+=`<div class="det-item"><div class="det-date"><div class="dd">${hari}</div><div class="dt">${day}</div><div class="dm">${mon}</div></div><div class="det-info"><div class="det-top">${badge(r.status_kehadiran)} ${kg}</div><div class="det-jam"><i class="fas fa-right-to-bracket"></i> ${jamM} &nbsp;—&nbsp; <i class="fas fa-right-from-bracket"></i> ${jamK}</div>${lok}${ket}${evidenceHtml}</div></div>`;
     });
     html+=`</div>`;
     document.getElementById('modalBody').innerHTML=html;
+}
+
+// ── Lightbox evidence ─────────────────────────────────────────────────────────
+function bukaEvidence(src){
+    let lb=document.getElementById('evidenceLightbox');
+    if(!lb){
+        lb=document.createElement('div');
+        lb.id='evidenceLightbox';
+        lb.innerHTML=`<div class="ev-lb-backdrop" onclick="tutupEvidence()"></div><div class="ev-lb-box"><button class="ev-lb-close" onclick="tutupEvidence()"><i class="fas fa-xmark"></i></button><div class="ev-lb-header"><i class="fas fa-image"></i> Foto Evidence Absensi</div><div class="ev-lb-imgwrap"><img id="evidenceLbImg" src="" alt="Evidence"></div><a id="evidenceLbDl" href="" download class="ev-lb-dl"><i class="fas fa-download"></i> Unduh Foto</a></div>`;
+        document.body.appendChild(lb);
+    }
+    document.getElementById('evidenceLbImg').src=src;
+    document.getElementById('evidenceLbDl').href=src;
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function tutupEvidence(){
+    const lb=document.getElementById('evidenceLightbox');
+    if(lb){lb.classList.remove('open');document.body.style.overflow='';}
 }
 
 function tutupDetail(){document.getElementById('modalDetail').classList.remove('open');document.body.style.overflow='';}
@@ -1081,6 +1569,37 @@ document.getElementById('modalDetail').addEventListener('click',function(e){if(e
 
 // ── Load awal ─────────────────────────────────────────────────────────────────
 fetchTabel(false);
+
+// ── Dark mode ─────────────────────────────────────────────────────────────────
+(function(){
+    const body = document.body;
+    if (localStorage.getItem('dashDark') === '1') body.classList.add('dark');
+    const sidebarDark  = document.getElementById('sidebarDarkToggle');
+    const sidebarLabel = document.getElementById('sidebarDarkLabel');
+    function updateLabel() {
+        if (sidebarLabel) sidebarLabel.textContent = body.classList.contains('dark') ? 'Mode Terang' : 'Mode Gelap';
+    }
+    updateLabel();
+    if (sidebarDark) sidebarDark.addEventListener('click', function(e){
+        e.preventDefault();
+        body.classList.toggle('dark');
+        localStorage.setItem('dashDark', body.classList.contains('dark') ? '1' : '0');
+        updateLabel();
+    });
+})();
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+(function(){
+    const sidebar   = document.getElementById('sidebar');
+    const backdrop  = document.getElementById('sidebarBackdrop');
+    const btnToggle = document.getElementById('btnSidebarToggle');
+    const btnClose  = document.getElementById('sidebarClose');
+    function open()  { sidebar.classList.add('open');    backdrop.classList.add('open');    }
+    function close() { sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+    btnToggle && btnToggle.addEventListener('click', open);
+    btnClose  && btnClose.addEventListener('click', close);
+    backdrop  && backdrop.addEventListener('click', close);
+})();
 </script>
 </body>
 </html>
