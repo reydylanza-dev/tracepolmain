@@ -51,8 +51,8 @@ $keterangan     = trim($_POST["keterangan"]       ?? "");
 $metode         = trim($_POST["metode_absensi"]   ?? "manual");
 
 // Field khusus per tipe
-$shift          = trim($_POST["shift"]            ?? "pagi");
 $jenis_kegiatan = trim($_POST["jenis_kegiatan"]   ?? "mengajar");
+$sesi_mengajar  = (int)($_POST["sesi_mengajar"]   ?? 1); // 1–5, hanya berlaku untuk jenis_kegiatan=mengajar
 
 // ── Validasi dasar ────────────────────────────────────────────────────────────
 if (empty($nik_pegawai)) {
@@ -106,43 +106,140 @@ if ($position === 'dosen') {
         redirect_back("error", "Jenis kegiatan tidak valid.");
     }
 
-    // Cek apakah sudah ada record untuk kombinasi (dosen_nik, tanggal, jenis_kegiatan)
-    // kelas_id = NULL untuk absensi mandiri (bukan dari jadwal)
-    $sql_cek = "SELECT id, jam_masuk, jam_keluar FROM absensi_dosen
-                WHERE  dosen_nik     = ?
-                  AND  tanggal       = ?
-                  AND  jenis_kegiatan = ?
-                  AND  kelas_id      IS NULL
-                LIMIT 1";
+    // Validasi sesi untuk mengajar
+    if ($jenis_kegiatan === 'mengajar') {
+        if ($sesi_mengajar < 1 || $sesi_mengajar > 5) {
+            redirect_back("error", "Nomor sesi tidak valid (1–5).");
+        }
+        // Prefix keterangan dengan tag sesi agar bisa dibedakan
+        $sesi_prefix    = "[Sesi {$sesi_mengajar}]";
+        // Gabungkan prefix + keterangan user (jika ada)
+        $keterangan = $keterangan !== ''
+            ? "{$sesi_prefix} {$keterangan}"
+            : $sesi_prefix;
+    }
 
-    $ada = null;
-    if ($stmt = mysqli_prepare($link, $sql_cek)) {
-        mysqli_stmt_bind_param($stmt, "sss", $nik_pegawai, $tanggal, $jenis_kegiatan);
-        mysqli_stmt_execute($stmt);
-        $res = mysqli_stmt_get_result($stmt);
-        $ada = mysqli_fetch_assoc($res);
-        mysqli_stmt_close($stmt);
+    // ── Upload foto evidence (opsional) ─────────────────────────────────
+    $foto_evidence_path = null;
+    if (isset($_FILES['foto_evidence']) && $_FILES['foto_evidence']['error'] === UPLOAD_ERR_OK) {
+        $file      = $_FILES['foto_evidence'];
+        $ext       = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed   = ['jpg', 'jpeg', 'png', 'webp'];
+        $max_size  = 20 * 1024 * 1024; // 20 MB
+
+        if (!in_array($ext, $allowed)) {
+            redirect_back("error", "Format foto tidak didukung. Gunakan JPG, PNG, atau WEBP.");
+        }
+        if ($file['size'] > $max_size) {
+            redirect_back("error", "Ukuran foto terlalu besar. Maksimal 20 MB.");
+        }
+        // Validasi magic bytes — pastikan benar-benar file gambar
+        $mime = mime_content_type($file['tmp_name']);
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'])) {
+            redirect_back("error", "File yang diunggah bukan gambar yang valid.");
+        }
+
+        $dir = dirname(__DIR__) . '/uploads/evidence/';
+        if (!is_dir($dir)) {
+            if (!mkdir($dir, 0755, true)) {
+                redirect_back("error", "Gagal membuat folder uploads/evidence/. Periksa izin write pada folder uploads/.");
+            }
+        }
+        // Pastikan folder dapat ditulis sebelum upload
+        if (!is_writable($dir)) {
+            redirect_back("error", "Folder uploads/evidence/ tidak dapat ditulis. Periksa permission folder (chmod 755 atau 775).");
+        }
+        $filename = 'evidence_'
+            . preg_replace('/[^a-zA-Z0-9]/', '_', $nik_pegawai) . '_'
+            . date('Ymd_His') . '.' . $ext;
+
+        if (move_uploaded_file($file['tmp_name'], $dir . $filename)) {
+            $foto_evidence_path = 'uploads/evidence/' . $filename;
+        } else {
+            // Log detail error untuk debugging
+            error_log("[proses_absensi] move_uploaded_file gagal: tmp={$file['tmp_name']}, dest={$dir}{$filename}, is_uploaded=" . (is_uploaded_file($file['tmp_name']) ? 'ya' : 'tidak'));
+            redirect_back("error", "Gagal menyimpan foto evidence. Periksa izin folder uploads/evidence/ di server.");
+        }
+    }
+
+    // ── Cek duplikat ────────────────────────────────────────────────────
+    // Untuk mengajar: cek per sesi (menggunakan prefix keterangan)
+    // Untuk kegiatan lain: cek per (dosen_nik, tanggal, jenis_kegiatan, kelas_id IS NULL)
+    if ($jenis_kegiatan === 'mengajar') {
+        $sql_cek = "SELECT id, jam_mulai, jam_selesai, metode_absensi FROM absensi_dosen
+                    WHERE  dosen_nik      = ?
+                      AND  tanggal        = ?
+                      AND  jenis_kegiatan = 'mengajar'
+                      AND  kelas_id       IS NULL
+                      AND  keterangan     LIKE ?
+                    LIMIT 1";
+        $sesi_like = "[Sesi {$sesi_mengajar}]%";
+        $ada = null;
+        if ($stmt = mysqli_prepare($link, $sql_cek)) {
+            mysqli_stmt_bind_param($stmt, "sss", $nik_pegawai, $tanggal, $sesi_like);
+            mysqli_stmt_execute($stmt);
+            $res = mysqli_stmt_get_result($stmt);
+            $ada = mysqli_fetch_assoc($res);
+            mysqli_stmt_close($stmt);
+        }
+    } else {
+        $sql_cek = "SELECT id, jam_mulai, jam_selesai, metode_absensi FROM absensi_dosen
+                    WHERE  dosen_nik     = ?
+                      AND  tanggal       = ?
+                      AND  jenis_kegiatan = ?
+                      AND  kelas_id      IS NULL
+                    LIMIT 1";
+        $ada = null;
+        if ($stmt = mysqli_prepare($link, $sql_cek)) {
+            mysqli_stmt_bind_param($stmt, "sss", $nik_pegawai, $tanggal, $jenis_kegiatan);
+            mysqli_stmt_execute($stmt);
+            $res = mysqli_stmt_get_result($stmt);
+            $ada = mysqli_fetch_assoc($res);
+            mysqli_stmt_close($stmt);
+        }
     }
 
     if ($ada) {
-        // ── UPDATE: perbarui jam keluar / status / keterangan ──────────────
-        $sql = "UPDATE absensi_dosen
-                SET    jam_selesai      = COALESCE(?, jam_selesai),
-                       lokasi           = ?,
-                       metode_absensi   = ?,
-                       status_kehadiran = ?,
-                       keterangan       = ?,
-                       updated_at       = NOW()
-                WHERE  id = ?";
+        // ── UPDATE: jika record berasal dari auto-alfa sistem, overwrite semua field
+        //           jika sudah pernah absen manual, jam_masuk & lokasi tidak ditimpa
+        $adalah_alfa_sistem = ($ada['metode_absensi'] === 'sistem');
+
+        if ($adalah_alfa_sistem) {
+            // Record alfa otomatis → overwrite penuh
+            $sql = "UPDATE absensi_dosen
+                    SET    jam_mulai        = ?,
+                           jam_selesai      = ?,
+                           lokasi           = ?,
+                           metode_absensi   = ?,
+                           status_kehadiran = ?,
+                           keterangan       = ?,
+                           foto_evidence    = COALESCE(?, foto_evidence),
+                           updated_at       = NOW()
+                    WHERE  id = ?";
+        } else {
+            // Sudah absen manual → jam_masuk & lokasi lama dipertahankan
+            $sql = "UPDATE absensi_dosen
+                    SET    jam_mulai        = COALESCE(jam_mulai, ?),
+                           jam_selesai      = COALESCE(?, jam_selesai),
+                           lokasi           = COALESCE(lokasi, ?),
+                           metode_absensi   = ?,
+                           status_kehadiran = ?,
+                           keterangan       = ?,
+                           foto_evidence    = COALESCE(?, foto_evidence),
+                           updated_at       = NOW()
+                    WHERE  id = ?";
+        }
 
         if ($stmt = mysqli_prepare($link, $sql)) {
-            mysqli_stmt_bind_param($stmt, "sssssi",
-                $jam_keluar, $lokasi_final, $metode, $status, $keterangan, $ada['id']
+            mysqli_stmt_bind_param($stmt, "sssssssi",
+                $jam_masuk, $jam_keluar, $lokasi_final,
+                $metode, $status, $keterangan,
+                $foto_evidence_path, $ada['id']
             );
             if (mysqli_stmt_execute($stmt)) {
-                redirect_back("sukses", "Absensi berhasil diperbarui.");
+                redirect_back("sukses", "Absensi berhasil dicatat.");
             } else {
-                redirect_back("error", "Gagal memperbarui absensi: " . mysqli_error($link));
+                redirect_back("error", "Gagal menyimpan absensi: " . mysqli_error($link));
             }
             mysqli_stmt_close($stmt);
         }
@@ -151,21 +248,24 @@ if ($position === 'dosen') {
         // ── INSERT baru ────────────────────────────────────────────────────
         $sql = "INSERT INTO absensi_dosen
                     (dosen_nik, tanggal, jenis_kegiatan, jam_mulai, jam_selesai,
-                     lokasi, metode_absensi, status_kehadiran, keterangan)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                     lokasi, metode_absensi, status_kehadiran, keterangan, foto_evidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         if ($stmt = mysqli_prepare($link, $sql)) {
-            mysqli_stmt_bind_param($stmt, "sssssssss",
+            mysqli_stmt_bind_param($stmt, "ssssssssss",
                 $nik_pegawai, $tanggal, $jenis_kegiatan,
                 $jam_masuk, $jam_keluar, $lokasi_final,
-                $metode, $status, $keterangan
+                $metode, $status, $keterangan, $foto_evidence_path
             );
             if (mysqli_stmt_execute($stmt)) {
                 redirect_back("sukses", "Absensi berhasil dicatat.");
             } else {
                 // Duplicate key — sudah absen via jadwal mungkin
                 if (mysqli_errno($link) === 1062) {
-                    redirect_back("error", "Absensi untuk kegiatan ini pada tanggal tersebut sudah tercatat.");
+                    $pesan_dup = ($jenis_kegiatan === 'mengajar')
+                        ? "Absensi mengajar sesi {$sesi_mengajar} pada tanggal tersebut sudah tercatat."
+                        : "Absensi untuk kegiatan ini pada tanggal tersebut sudah tercatat.";
+                    redirect_back("error", $pesan_dup);
                 }
                 redirect_back("error", "Gagal menyimpan absensi: " . mysqli_error($link));
             }
@@ -176,22 +276,15 @@ if ($position === 'dosen') {
 } else {
     // ── STAFF ─────────────────────────────────────────────────────────────────
 
-    // Validasi enum shift
-    $shift_valid = ['pagi','siang','malam','full'];
-    if (!in_array($shift, $shift_valid)) {
-        redirect_back("error", "Shift tidak valid.");
-    }
-
-    // Cek apakah sudah ada record untuk (staff_nik, tanggal, shift)
-    $sql_cek = "SELECT id FROM absensi_staff
+    // Cek apakah sudah ada record untuk (staff_nik, tanggal)
+    $sql_cek = "SELECT id, metode_absensi FROM absensi_staff
                 WHERE  staff_nik = ?
                   AND  tanggal   = ?
-                  AND  shift     = ?
                 LIMIT 1";
 
     $ada = null;
     if ($stmt = mysqli_prepare($link, $sql_cek)) {
-        mysqli_stmt_bind_param($stmt, "sss", $nik_pegawai, $tanggal, $shift);
+        mysqli_stmt_bind_param($stmt, "ss", $nik_pegawai, $tanggal);
         mysqli_stmt_execute($stmt);
         $res = mysqli_stmt_get_result($stmt);
         $ada = mysqli_fetch_assoc($res);
@@ -199,24 +292,46 @@ if ($position === 'dosen') {
     }
 
     if ($ada) {
-        // ── UPDATE ────────────────────────────────────────────────────────
-        $sql = "UPDATE absensi_staff
-                SET    jam_keluar       = COALESCE(?, jam_keluar),
-                       lokasi_keluar    = COALESCE(?, lokasi_keluar),
-                       metode_absensi   = ?,
-                       status_kehadiran = ?,
-                       keterangan       = ?,
-                       updated_at       = NOW()
-                WHERE  id = ?";
+        // ── UPDATE: jika record berasal dari auto-alfa sistem, overwrite semua field
+        //           jika sudah pernah absen manual, jam_masuk & lokasi tidak ditimpa
+        $adalah_alfa_sistem = ($ada['metode_absensi'] === 'sistem');
+
+        if ($adalah_alfa_sistem) {
+            // Record alfa otomatis → overwrite penuh
+            $sql = "UPDATE absensi_staff
+                    SET    jam_masuk        = ?,
+                           lokasi_masuk     = ?,
+                           jam_keluar       = ?,
+                           lokasi_keluar    = ?,
+                           metode_absensi   = ?,
+                           status_kehadiran = ?,
+                           keterangan       = ?,
+                           updated_at       = NOW()
+                    WHERE  id = ?";
+        } else {
+            // Sudah absen manual → jam_masuk & lokasi lama dipertahankan
+            $sql = "UPDATE absensi_staff
+                    SET    jam_masuk        = COALESCE(jam_masuk, ?),
+                           lokasi_masuk     = COALESCE(lokasi_masuk, ?),
+                           jam_keluar       = COALESCE(?, jam_keluar),
+                           lokasi_keluar    = COALESCE(?, lokasi_keluar),
+                           metode_absensi   = ?,
+                           status_kehadiran = ?,
+                           keterangan       = ?,
+                           updated_at       = NOW()
+                    WHERE  id = ?";
+        }
 
         if ($stmt = mysqli_prepare($link, $sql)) {
-            mysqli_stmt_bind_param($stmt, "sssssi",
-                $jam_keluar, $lokasi_final, $metode, $status, $keterangan, $ada['id']
+            mysqli_stmt_bind_param($stmt, "sssssssi",
+                $jam_masuk, $lokasi_final,
+                $jam_keluar, $lokasi_final,
+                $metode, $status, $keterangan, $ada['id']
             );
             if (mysqli_stmt_execute($stmt)) {
-                redirect_back("sukses", "Absensi berhasil diperbarui.");
+                redirect_back("sukses", "Absensi berhasil dicatat.");
             } else {
-                redirect_back("error", "Gagal memperbarui absensi: " . mysqli_error($link));
+                redirect_back("error", "Gagal menyimpan absensi: " . mysqli_error($link));
             }
             mysqli_stmt_close($stmt);
         }
@@ -224,13 +339,13 @@ if ($position === 'dosen') {
     } else {
         // ── INSERT baru ────────────────────────────────────────────────────
         $sql = "INSERT INTO absensi_staff
-                    (staff_nik, tanggal, shift, jam_masuk, jam_keluar,
+                    (staff_nik, tanggal, jam_masuk, jam_keluar,
                      lokasi_masuk, metode_absensi, status_kehadiran, keterangan)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         if ($stmt = mysqli_prepare($link, $sql)) {
-            mysqli_stmt_bind_param($stmt, "sssssssss",
-                $nik_pegawai, $tanggal, $shift,
+            mysqli_stmt_bind_param($stmt, "ssssssss",
+                $nik_pegawai, $tanggal,
                 $jam_masuk, $jam_keluar, $lokasi_final,
                 $metode, $status, $keterangan
             );
@@ -238,7 +353,7 @@ if ($position === 'dosen') {
                 redirect_back("sukses", "Absensi berhasil dicatat.");
             } else {
                 if (mysqli_errno($link) === 1062) {
-                    redirect_back("error", "Absensi shift ini pada tanggal tersebut sudah tercatat.");
+                    redirect_back("error", "Absensi pada tanggal tersebut sudah tercatat.");
                 }
                 redirect_back("error", "Gagal menyimpan absensi: " . mysqli_error($link));
             }
