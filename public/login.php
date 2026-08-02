@@ -68,658 +68,245 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Masuk | TRACE Polmain</title>
-    <link rel="icon" href="img/ico.png" type="image/png">
+    <link class="js-favicon" rel="icon" href="img/ico.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        :root {
-            --blue:        #003366;
-            --blue-mid:    #004d99;
-            --blue-light:  #0066cc;
-            --yellow:      #FFD700;
-            --yellow-dark: #E6BF00;
-            --white:       #ffffff;
-            --gray-50:     #f8fafc;
-            --gray-100:    #f1f5f9;
-            --gray-200:    #e2e8f0;
-            --gray-300:    #cbd5e1;
-            --gray-400:    #94a3b8;
-            --gray-500:    #64748b;
-            --gray-600:    #475569;
-            --gray-800:    #1e293b;
-            --error:       #dc2626;
-            --error-bg:    #fef2f2;
-            --error-border:#fecaca;
-            --success:     #16a34a;
-
-            /* Dark mode tokens */
-            --dm-bg:       #060f1e;
-            --dm-surface:  #0d1f3c;
-            --dm-surface2: #112244;
-            --dm-border:   rgba(255,255,255,0.08);
-            --dm-text:     #e2e8f0;
-            --dm-muted:    rgba(255,255,255,0.4);
-        }
-
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-        html { height: 100%; }
-
-        body {
-            font-family: "Plus Jakarta Sans", sans-serif;
-            min-height: 100vh;
-            background: var(--gray-100);
-            display: flex;
-            flex-direction: column;
-            transition: background 0.35s, color 0.35s;
-        }
-
-        /* ─── TOP BAR ─────────────────────────────────── */
-        .top-bar {
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 13px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-            transition: background 0.35s, border-color 0.35s;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-
-        .brand-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .brand-icon i {
-            color: var(--yellow);
-            font-size: 15px;
-        }
-
-        .brand-text .t1 {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--blue);
-            line-height: 1.2;
-            letter-spacing: -0.2px;
-            transition: color 0.35s;
-        }
-
-        .brand-text .t2 {
-            font-size: 10px;
-            font-weight: 500;
-            color: var(--gray-400);
-            letter-spacing: 0.6px;
-            text-transform: uppercase;
-        }
-
-        /* Dark toggle */
-        .dark-toggle {
-            width: 44px;
-            height: 24px;
-            background: var(--gray-200);
-            border: 1.5px solid var(--gray-300);
-            border-radius: 999px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s;
-            flex-shrink: 0;
-        }
-
-        .dark-toggle::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 16px;
-            height: 16px;
-            background: var(--yellow);
-            border-radius: 50%;
-            transition: all 0.3s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-        }
-
-        /* ─── MAIN LAYOUT ─────────────────────────────── */
-        .page-body {
-            flex: 1;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 32px 16px 48px;
-        }
-
-        /* Card container — full width on mobile, constrained on desktop */
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        /* ─── HEADER BLOCK ────────────────────────────── */
-        .card-header {
-            background: linear-gradient(145deg, var(--blue) 0%, var(--blue-mid) 60%, var(--blue-light) 100%);
-            border-radius: 20px 20px 0 0;
-            padding: 32px 28px 28px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Decorative circles — pure CSS, no images */
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: rgba(255,215,0,0.10);
-        }
-
-        .card-header::after {
-            content: '';
-            position: absolute;
-            bottom: -40px;
-            left: -40px;
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .header-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255,215,0,0.15);
-            border: 1px solid rgba(255,215,0,0.35);
-            border-radius: 999px;
-            padding: 4px 12px;
-            margin-bottom: 16px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-badge span {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--yellow);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-        }
-
-        .header-badge i {
-            font-size: 9px;
-            color: var(--yellow);
-        }
-
-        .header-title {
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--white);
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-            margin-bottom: 6px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-title span {
-            color: var(--yellow);
-        }
-
-        .header-sub {
-            font-size: 13px;
-            color: rgba(255,255,255,0.65);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Live clock strip */
-        .clock-strip {
-            margin-top: 20px;
-            background: rgba(0,0,0,0.25);
-            border-radius: 12px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .clock-time {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--yellow);
-            letter-spacing: 1px;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .clock-date {
-            font-size: 11px;
-            color: rgba(255,255,255,0.6);
-            text-align: right;
-            line-height: 1.5;
-        }
-
-        /* ─── FORM BLOCK ──────────────────────────────── */
-        .card-body {
-            background: var(--white);
-            border-radius: 0 0 20px 20px;
-            padding: 28px 28px 24px;
-            box-shadow: 0 12px 40px rgba(0,51,102,0.12);
-            transition: background 0.35s;
-        }
-
-        /* Yellow accent bar */
-        .accent-bar {
-            height: 3px;
-            background: linear-gradient(90deg, var(--yellow) 0%, var(--yellow-dark) 100%);
-            border-radius: 3px;
-            margin-bottom: 24px;
-        }
-
-        /* Alerts */
-        .alert {
-            display: flex;
-            align-items: flex-start;
-            gap: 9px;
-            border-radius: 10px;
-            padding: 11px 13px;
-            margin-bottom: 18px;
-            font-size: 12.5px;
-            line-height: 1.55;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .alert i { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-
-        .alert-error {
-            background: var(--error-bg);
-            border: 1px solid var(--error-border);
-            color: var(--error);
-        }
-
-        .alert-info {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            color: #92400e;
-        }
-
-        /* Form groups */
-        .form-group { margin-bottom: 16px; }
-
-        .form-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11.5px;
-            font-weight: 700;
-            color: var(--gray-600);
-            margin-bottom: 7px;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            transition: color 0.35s;
-        }
-
-        .form-label i { font-size: 10px; color: var(--blue-light); }
-
-        .input-wrap { position: relative; }
-
-        .form-control {
-            width: 100%;
-            height: 48px;
-            padding: 0 46px 0 14px;
-            font-size: 15px;
-            font-family: "Plus Jakarta Sans", sans-serif;
-            color: var(--gray-800);
-            background: var(--gray-50);
-            border: 1.5px solid var(--gray-200);
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.25s;
-            -webkit-appearance: none;
-        }
-
-        .form-control::placeholder { color: var(--gray-400); }
-
-        .form-control:focus {
-            background: var(--white);
-            border-color: var(--blue-mid);
-            box-shadow: 0 0 0 3px rgba(0,77,153,0.10);
-        }
-
-        .form-control.is-invalid {
-            border-color: var(--error);
-            background: var(--error-bg);
-        }
-
-        .input-icon {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-            font-size: 15px;
-            background: none;
-            border: none;
-            padding: 4px;
-            cursor: pointer;
-            transition: color 0.2s;
-            line-height: 1;
-        }
-
-        .input-icon:hover { color: var(--blue); }
-
-        .invalid-feedback {
-            color: var(--error);
-            font-size: 11.5px;
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .invalid-feedback::before { content: '▲'; font-size: 7px; }
-
-        /* Submit */
-        .btn-submit {
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-            color: var(--white);
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            font-family: "Plus Jakarta Sans", sans-serif;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            margin-top: 20px;
-            margin-bottom: 14px;
-            transition: all 0.3s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn-submit::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.18), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.5s;
-        }
-
-        .btn-submit:hover::before { transform: translateX(100%); }
-
-        .btn-submit:hover {
-            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
-            box-shadow: 0 8px 24px rgba(0,51,102,0.30);
-            transform: translateY(-1px);
-        }
-
-        .btn-submit:active { transform: translateY(0); box-shadow: none; }
-
-        .btn-submit.loading { pointer-events: none; opacity: 0.75; }
-
-        .btn-submit .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.35);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            display: none;
-        }
-
-        .btn-submit.loading .spinner { display: block; }
-        .btn-submit.loading .btn-label { display: none; }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Footer */
-        .card-footer {
-            text-align: center;
-            font-size: 11px;
-            color: var(--gray-400);
-            padding-top: 6px;
-            transition: color 0.35s;
-        }
-
-        /* ─── DARK MODE ───────────────────────────────── */
-        body.dark {
-            background: var(--dm-bg);
-        }
-
-        body.dark .top-bar {
-            background: var(--dm-surface);
-            border-color: var(--dm-border);
-        }
-
-        body.dark .brand-text .t1 { color: var(--yellow); }
-
-        body.dark .dark-toggle {
-            background: #1e3a5f;
-            border-color: #2a4a73;
-        }
-
-        body.dark .dark-toggle::after {
-            right: auto;
-            left: 2px;
-            background: #c7d2fe;
-        }
-
-        body.dark .card-body {
-            background: var(--dm-surface);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-        }
-
-        body.dark .form-label  { color: var(--dm-muted); }
-
-        body.dark .form-control {
-            background: var(--dm-surface2);
-            border-color: var(--dm-border);
-            color: var(--dm-text);
-        }
-
-        body.dark .form-control::placeholder { color: rgba(255,255,255,0.25); }
-
-        body.dark .form-control:focus {
-            background: rgba(255,255,255,0.06);
-            border-color: var(--yellow);
-            box-shadow: 0 0 0 3px rgba(255,215,0,0.10);
-        }
-
-        body.dark .card-footer { color: var(--dm-muted); }
-
-        /* ─── RESPONSIVE: DESKTOP TWO-COLUMN ─────────── */
-        @media (min-width: 860px) {
-            .page-body {
-                align-items: center;
-                min-height: calc(100vh - 62px);
-                padding: 40px 24px;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', 
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        pol: {
+                            blue: '#003366',
+                            mid: '#004d99',
+                            light: '#0066cc',
+                        },
+                        polyellow: {
+                            DEFAULT: '#FFD700',
+                            dark: '#E6BF00',
+                        },
+                        dm: {
+                            bg: '#060f1e',
+                            surface: '#0d1f3c',
+                            surface2: '#112244',
+                        }
+                    },
+                    screens: {
+                        'desk': '860px', 
+                    },
+                    animation: {
+                        'slide-down': 'slideDown 0.3s ease',
+                        'pdw-slide-in': 'pdwSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                    },
+                    keyframes: {
+                        slideDown: {
+                            from: { opacity: '0', transform: 'translateY(-8px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        pdwSlideIn: {
+                            from: { opacity: '0', transform: 'translateY(30px) scale(0.95)' },
+                            to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        }
+                    }
+                }
             }
+        }
+    </script>
 
-            .login-card {
-                max-width: 900px;
-                flex-direction: row;
-                border-radius: 20px;
-                overflow: hidden;
-                box-shadow: 0 24px 80px rgba(0,30,80,0.20);
-                gap: 0;
+    <style type="text/tailwindcss">
+        @layer components {
+            body.dark { 
+                @apply bg-dm-bg; 
             }
-
-            .card-header {
-                width: 380px;
-                flex-shrink: 0;
-                border-radius: 0;
-                padding: 48px 40px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
-            .card-header::before {
-                top: -80px; right: -80px;
-                width: 250px; height: 250px;
-            }
-
-            .card-header::after {
-                bottom: -60px; left: -60px;
-                width: 200px; height: 200px;
-            }
-
-            .header-title { font-size: 30px; }
-
-            .card-body {
-                flex: 1;
-                border-radius: 0;
-                padding: 48px 44px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                box-shadow: none;
-            }
+            
+            #popupDesktopWarning.show { display: flex !important; }
+            .btn-submit.loading { pointer-events: none; opacity: 0.75; }
+            .btn-submit.loading .spinner { display: block; }
+            .btn-submit.loading .btn-label { display: none; }
         }
     </style>
 </head>
-<body>
+<body class="min-h-[100dvh] flex flex-col bg-slate-100 font-sans text-slate-800 transition-colors duration-300">
 
-<!-- TOP BAR -->
-<header class="top-bar">
-    <a href="index.php" class="brand">
-        <div class="brand-icon"><i class="fas fa-fingerprint"></i></div>
-        <div class="brand-text">
-            <div class="t1">TRACE (Time & Record Academic Connection Environment)</div>
-            <div class="t2">Politeknik Masamy Internasional</div>
+<div id="popupDesktopWarning" role="dialog" aria-modal="true" aria-labelledby="pdwTitle" class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/75 p-5 backdrop-blur-[6px]">
+    <div class="relative w-full max-w-[460px] animate-pdw-slide-in rounded-[24px] bg-white px-9 pb-9 pt-10 text-center shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
+        <button class="absolute right-3.5 top-3.5 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-none bg-slate-100 text-[14px] text-slate-500 transition-colors duration-200 hover:bg-slate-200 hover:text-slate-900" id="pdwCloseBtn" aria-label="Tutup peringatan">
+            <i class="fas fa-xmark"></i>
+        </button>
+        <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#fff3cd] to-[#ffe082] shadow-[0_8px_24px_rgba(255,193,7,0.35)]">
+            <i class="fas fa-mobile-screen-button text-[36px] text-amber-500"></i>
+        </div>
+        <h2 class="mb-2.5 text-[20px] font-extrabold leading-[1.3] text-slate-900" id="pdwTitle">Gunakan Smartphone</h2>
+        <p class="mb-7 text-[14px] font-medium leading-[1.7] text-slate-600">
+            Halaman login <strong class="text-pol-blue">TRACE</strong> dirancang khusus untuk perangkat <strong class="text-pol-blue">smartphone</strong>.<br>
+            Silakan buka halaman ini melalui ponsel Anda untuk melakukan absensi.
+        </p>
+        <div class="mb-7 flex items-center justify-center gap-[18px]">
+            <div class="flex flex-col items-center gap-1.5">
+                <div class="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-gradient-to-br from-pol-blue to-pol-light shadow-[0_6px_16px_rgba(0,51,102,0.3)]">
+                    <i class="fas fa-desktop text-[22px] text-polyellow"></i>
+                </div>
+                <span class="text-[11px] font-bold uppercase tracking-[0.5px] text-slate-500">Desktop</span>
+            </div>
+            <div class="-mt-2.5 text-[20px] text-slate-300"><i class="fas fa-arrow-right"></i></div>
+            <div class="flex flex-col items-center gap-1.5">
+                <div class="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-gradient-to-br from-pol-blue to-pol-light shadow-[0_6px_16px_rgba(0,51,102,0.3)]">
+                    <i class="fas fa-mobile-screen text-[22px] text-polyellow"></i>
+                </div>
+                <span class="text-[11px] font-bold uppercase tracking-[0.5px] text-slate-500">Smartphone</span>
+            </div>
+        </div>
+        <div class="mb-5 h-px bg-slate-100"></div>
+        <p class="text-[12px] font-medium text-slate-400">
+            <i class="fas fa-circle-info mr-1 text-amber-500"></i>
+            Akses absensi hanya tersedia di perangkat mobile.
+        </p>
+    </div>
+</div>
+
+<script>
+(function() {
+    function isDesktop() {
+        var ua = navigator.userAgent || '';
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(ua);
+        var isWideScreen = window.innerWidth >= 1024;
+        return !isMobile && isWideScreen;
+    }
+    function showDesktopWarning() {
+        var popup = document.getElementById('popupDesktopWarning');
+        if (popup) { popup.classList.add('show'); document.body.style.overflow = 'hidden'; }
+    }
+    function hideDesktopWarning() {
+        var popup = document.getElementById('popupDesktopWarning');
+        if (popup) { popup.classList.remove('show'); document.body.style.overflow = ''; }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isDesktop()) showDesktopWarning();
+            var btn = document.getElementById('pdwCloseBtn');
+            if (btn) btn.addEventListener('click', hideDesktopWarning);
+        });
+    } else {
+        if (isDesktop()) showDesktopWarning();
+        var btn = document.getElementById('pdwCloseBtn');
+        if (btn) btn.addEventListener('click', hideDesktopWarning);
+    }
+    window.addEventListener('resize', function() {
+        if (isDesktop()) {
+            showDesktopWarning();
+        } else {
+            hideDesktopWarning();
+        }
+    });
+})();
+</script>
+
+<header class="sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-[10px] desk:py-[13px] shadow-[0_1px_6px_rgba(0,0,0,0.06)] transition-colors duration-300 dark:border-white/10 dark:bg-dm-surface">
+    <a href="index.php" class="flex items-center gap-2.5 no-underline">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-pol-blue to-pol-mid">
+            <i class="fas fa-fingerprint text-[15px] text-polyellow"></i>
+        </div>
+        <div class="flex flex-col">
+            <div class="text-[14px] font-extrabold leading-tight tracking-[-0.2px] text-pol-blue transition-colors duration-300 dark:text-polyellow">TRACE (Time & Record Academic Connection Environment)</div>
+            <div class="text-[10px] font-medium uppercase tracking-[0.6px] text-slate-400">Politeknik Masamy Internasional</div>
         </div>
     </a>
-    <button class="dark-toggle" id="darkToggle" title="Ganti tema" aria-label="Toggle dark mode"></button>
+    <button class="relative h-6 w-11 shrink-0 cursor-pointer rounded-full border-[1.5px] border-slate-300 bg-slate-200 transition-all duration-300 after:absolute after:right-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-polyellow after:shadow-[0_1px_4px_rgba(0,0,0,0.2)] after:transition-all after:duration-300 dark:border-[#2a4a73] dark:bg-[#1e3a5f] dark:after:left-[2px] dark:after:right-auto dark:after:bg-indigo-200" id="darkToggle" title="Ganti tema" aria-label="Toggle dark mode"></button>
 </header>
 
-<!-- MAIN -->
-<main class="page-body">
-    <div class="login-card">
+<main class="flex flex-1 items-center justify-center px-4 py-3 desk:items-center desk:px-6 desk:py-10">
+    <div class="flex w-full max-w-[420px] flex-col desk:max-w-[900px] desk:flex-row desk:overflow-hidden desk:rounded-[20px] desk:shadow-[0_24px_80px_rgba(0,30,80,0.20)]">
 
-        <!-- LEFT / HEADER BLOCK -->
-        <div class="card-header">
-            <div class="header-badge">
-                <i class="fas fa-shield-halved"></i>
-                <span>Absensi Mandiri</span>
+        <div class="relative overflow-hidden rounded-t-[20px] bg-gradient-to-br from-pol-blue via-pol-mid to-pol-light p-5 desk:px-7 desk:pb-7 desk:pt-8 before:absolute before:-right-[60px] before:-top-[60px] before:h-[180px] before:w-[180px] before:rounded-full before:bg-polyellow/10 after:absolute after:-bottom-[40px] after:-left-[40px] after:h-[130px] after:w-[130px] after:rounded-full after:bg-white/5 desk:flex desk:w-[380px] desk:shrink-0 desk:flex-col desk:justify-center desk:rounded-none desk:p-10 desk:before:-right-[80px] desk:before:-top-[80px] desk:before:h-[250px] desk:before:w-[250px] desk:after:-bottom-[60px] desk:after:-left-[60px] desk:after:h-[200px] desk:after:w-[200px]">
+            <div class="relative z-10 mb-3 desk:mb-4 inline-flex items-center gap-1.5 rounded-full border border-polyellow/35 bg-polyellow/15 px-3 py-1">
+                <i class="fas fa-shield-halved text-[9px] text-polyellow"></i>
+                <span class="text-[10px] font-bold uppercase tracking-[1.5px] text-polyellow">Absensi Mandiri</span>
             </div>
-            <h1 class="header-title">Selamat<br>Datang <span>Kembali</span></h1>
-            <p class="header-sub">Masuk untuk mencatat kehadiran Anda hari ini</p>
+            <h1 class="relative z-10 mb-1 text-[24px] desk:text-[26px] font-extrabold leading-tight tracking-[-0.5px] text-white desk:mb-1.5 desk:text-[30px]">Selamat<br>Datang <span class="text-polyellow">Kembali</span></h1>
+            <p class="relative z-10 text-[12px] desk:text-[13px] text-white/65">Masuk untuk mencatat kehadiran Anda hari ini</p>
 
-            <div class="clock-strip">
-                <div class="clock-time" id="clockTime">--:--:--</div>
-                <div class="clock-date" id="clockDate">Memuat...</div>
+            <div class="relative z-10 mt-3 desk:mt-5 flex items-center justify-between rounded-xl border border-white/10 bg-black/25 px-4 py-2 desk:py-2.5">
+                <div class="font-variant-numeric text-[20px] desk:text-[22px] font-extrabold tabular-nums tracking-[1px] text-polyellow" id="clockTime">--:--:--</div>
+                <div class="text-right text-[10px] desk:text-[11px] leading-relaxed text-white/60" id="clockDate">Memuat...</div>
             </div>
         </div>
 
-        <!-- RIGHT / FORM BLOCK -->
-        <div class="card-body">
-            <div class="accent-bar"></div>
+        <div class="rounded-b-[20px] bg-white p-5 shadow-[0_12px_40px_rgba(0,51,102,0.12)] transition-colors duration-300 desk:flex desk:flex-1 desk:flex-col desk:justify-center desk:rounded-none desk:px-7 desk:pb-6 desk:pt-7 desk:p-11 desk:shadow-none dark:bg-dm-surface dark:shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+            <div class="mb-4 desk:mb-6 h-[3px] rounded-[3px] bg-gradient-to-r from-polyellow to-polyellow-dark"></div>
 
             <?php if (!empty($login_err)): ?>
-            <div class="alert alert-error">
-                <i class="fas fa-circle-xmark"></i>
+            <div class="mb-3 desk:mb-[18px] flex animate-slide-down items-start gap-[9px] rounded-[10px] border border-red-200 bg-red-50 px-3 py-2 desk:px-[13px] desk:py-[11px] text-[12px] desk:text-[12.5px] leading-relaxed text-red-600">
+                <i class="fas fa-circle-xmark mt-[1px] shrink-0 text-[13px]"></i>
                 <span><?php echo htmlspecialchars($login_err); ?></span>
             </div>
             <?php endif; ?>
 
-            <div class="alert alert-info">
-                <i class="fas fa-circle-info"></i>
-                <span>Gunakan username &amp; password yang telah diberikan oleh administrator.</span>
+            <div class="mb-3 desk:mb-[18px] flex items-start gap-[9px] rounded-[10px] border border-amber-200 bg-amber-50 px-3 py-2 desk:px-[13px] desk:py-[11px] text-[12px] desk:text-[12.5px] leading-relaxed text-amber-900">
+                <i class="fas fa-circle-info mt-[1px] shrink-0 text-[13px]"></i>
+                <span>Gunakan username &amp; password Anda.</span>
             </div>
 
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" id="loginForm" novalidate>
 
-                <div class="form-group">
-                    <label class="form-label" for="username">
-                        <i class="fas fa-user"></i> Username
+                <div class="mb-3 desk:mb-4">
+                    <label class="mb-1 desk:mb-[7px] flex items-center gap-1.5 text-[11px] desk:text-[11.5px] font-bold uppercase tracking-[0.6px] text-slate-600 transition-colors duration-300 dark:text-white/40" for="username">
+                        <i class="fas fa-user text-[10px] text-pol-light"></i> Username
                     </label>
-                    <div class="input-wrap">
+                    <div class="relative">
                         <input
                             type="text"
                             id="username"
                             name="username"
-                            class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>"
+                            class="h-11 desk:h-12 w-full appearance-none rounded-xl border-[1.5px] border-slate-200 bg-slate-50 pl-[14px] pr-[46px] font-sans text-[14px] desk:text-[15px] text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-pol-mid focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,77,153,0.10)] dark:border-white/10 dark:bg-dm-surface2 dark:text-slate-200 dark:placeholder:text-white/25 dark:focus:border-polyellow dark:focus:bg-white/5 dark:focus:shadow-[0_0_0_3px_rgba(255,215,0,0.10)] <?php echo (!empty($username_err)) ? '!border-red-600 !bg-red-50 focus:!shadow-[0_0_0_3px_rgba(220,38,38,0.10)]' : ''; ?>"
                             value="<?php echo htmlspecialchars($username); ?>"
                             placeholder="Masukkan username Anda"
                             autocomplete="username"
                             autocapitalize="none"
                             spellcheck="false">
-                        <i class="fas fa-at input-icon" style="pointer-events:none;"></i>
+                        <i class="fas fa-at absolute right-[14px] top-1/2 -translate-y-1/2 text-[14px] desk:text-[15px] leading-none text-slate-400" style="pointer-events:none;"></i>
                     </div>
                     <?php if (!empty($username_err)): ?>
-                        <div class="invalid-feedback"><?php echo htmlspecialchars($username_err); ?></div>
+                        <div class="mt-1 desk:mt-1.5 flex items-center gap-1 text-[11px] desk:text-[11.5px] text-red-600 before:text-[7px] before:content-['▲']"><?php echo htmlspecialchars($username_err); ?></div>
                     <?php endif; ?>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="passwordInput">
-                        <i class="fas fa-lock"></i> Password
+                <div class="mb-3 desk:mb-4">
+                    <label class="mb-1 desk:mb-[7px] flex items-center gap-1.5 text-[11px] desk:text-[11.5px] font-bold uppercase tracking-[0.6px] text-slate-600 transition-colors duration-300 dark:text-white/40" for="passwordInput">
+                        <i class="fas fa-lock text-[10px] text-pol-light"></i> Password
                     </label>
-                    <div class="input-wrap">
+                    <div class="relative">
                         <input
                             type="password"
                             id="passwordInput"
                             name="password"
-                            class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>"
+                            class="h-11 desk:h-12 w-full appearance-none rounded-xl border-[1.5px] border-slate-200 bg-slate-50 pl-[14px] pr-[46px] font-sans text-[14px] desk:text-[15px] text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-pol-mid focus:bg-white focus:shadow-[0_0_0_3px_rgba(0,77,153,0.10)] dark:border-white/10 dark:bg-dm-surface2 dark:text-slate-200 dark:placeholder:text-white/25 dark:focus:border-polyellow dark:focus:bg-white/5 dark:focus:shadow-[0_0_0_3px_rgba(255,215,0,0.10)] <?php echo (!empty($password_err)) ? '!border-red-600 !bg-red-50 focus:!shadow-[0_0_0_3px_rgba(220,38,38,0.10)]' : ''; ?>"
                             placeholder="Masukkan password Anda"
                             autocomplete="current-password">
-                        <button type="button" class="input-icon" id="togglePassword" aria-label="Lihat password">
+                        <button type="button" class="absolute right-[14px] top-1/2 -translate-y-1/2 cursor-pointer border-none bg-transparent p-1 text-[14px] desk:text-[15px] leading-none text-slate-400 transition-colors duration-200 hover:text-pol-blue" id="togglePassword" aria-label="Lihat password">
                             <i class="fas fa-eye" id="eyeIcon"></i>
                         </button>
                     </div>
                     <?php if (!empty($password_err)): ?>
-                        <div class="invalid-feedback"><?php echo htmlspecialchars($password_err); ?></div>
+                        <div class="mt-1 desk:mt-1.5 flex items-center gap-1 text-[11px] desk:text-[11.5px] text-red-600 before:text-[7px] before:content-['▲']"><?php echo htmlspecialchars($password_err); ?></div>
                     <?php endif; ?>
                 </div>
 
-                <button type="submit" class="btn-submit" id="submitBtn">
-                    <div class="spinner"></div>
+                <button type="submit" class="btn-submit relative mb-2 mt-4 desk:mb-3.5 desk:mt-5 flex h-[46px] desk:h-[50px] w-full cursor-pointer items-center justify-center gap-2.5 overflow-hidden rounded-xl border-none bg-gradient-to-br from-pol-blue to-pol-mid font-sans text-[13px] desk:text-[14px] font-bold uppercase tracking-[0.8px] text-white transition-all duration-300 hover:-translate-y-[1px] hover:bg-gradient-to-br hover:from-pol-mid hover:to-pol-light hover:shadow-[0_8px_24px_rgba(0,51,102,0.30)] active:translate-y-0 active:shadow-none [-webkit-tap-highlight-color:transparent] before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-polyellow/20 before:to-transparent before:transition-transform before:duration-500 hover:before:translate-x-full" id="submitBtn">
+                    <div class="spinner hidden h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white"></div>
                     <span class="btn-label">
                         <i class="fas fa-right-to-bracket"></i>&nbsp; Masuk Sekarang
                     </span>
                 </button>
 
-                <p class="card-footer">Catners® SecureID 5.0 &nbsp;·&nbsp; © 2026 IT Polmain</p>
+                <p class="pt-0 desk:pt-1.5 text-center text-[10px] desk:text-[11px] text-slate-400 transition-colors duration-300 dark:text-white/40">Catners® SecureID 5.0 &nbsp;·&nbsp; © 2026 IT Polmain</p>
             </form>
         </div>
 
@@ -771,6 +358,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     document.getElementById('loginForm').addEventListener('submit', function () {
         const btn = document.getElementById('submitBtn');
         btn.classList.add('loading');
+    });
+
+    /* ── Advanced UX & Behavior Enhancements ── */
+
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('passwordInput');
+
+    if (!usernameInput.value) {
+        usernameInput.focus();
+    } else if (!passwordInput.value) {
+        passwordInput.focus();
+    }
+
+    const inputs = [usernameInput, passwordInput];
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.classList.contains('!border-red-600')) {
+                this.classList.remove('!border-red-600', '!bg-red-50', 'focus:!shadow-[0_0_0_3px_rgba(220,38,38,0.10)]');
+                const errorMsg = this.parentElement.nextElementSibling;
+                if (errorMsg && errorMsg.classList.contains('text-red-600')) {
+                    errorMsg.style.transition = 'opacity 0.3s ease';
+                    errorMsg.style.opacity = '0';
+                    setTimeout(() => errorMsg.remove(), 300); 
+                }
+            }
+        });
+    });
+
+    const hasError = document.querySelector('.border-red-200'); 
+    if (hasError && navigator.vibrate) {
+        navigator.vibrate([50, 75, 50]); 
+    }
+    
+    document.getElementById('loginForm').addEventListener('submit', function () {
+        if (navigator.vibrate) navigator.vibrate(25); 
+    });
+
+    passwordInput.addEventListener('keyup', function(e) {
+        const eyeBtn = document.getElementById('togglePassword');
+        if (e.getModifierState && e.getModifierState('CapsLock')) {
+            eyeBtn.classList.remove('text-slate-400');
+            eyeBtn.classList.add('text-amber-500');
+            eyeBtn.title = "Peringatan: Caps Lock Aktif!";
+        } else {
+            eyeBtn.classList.remove('text-amber-500');
+            eyeBtn.classList.add('text-slate-400');
+            eyeBtn.title = "Lihat password";
+        }
     });
 
 })();
