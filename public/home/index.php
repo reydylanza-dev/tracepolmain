@@ -551,18 +551,20 @@ function badge_status($s) {
         .menu-badge { position:absolute; top:12px; right:12px; background:var(--red); color:var(--white); font-size:9.5px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.4px; }
 
         /* ─── HISTORY SECTION ────────────────────────────── */
-        .history-list { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
-        .history-item { background:var(--white); border:1px solid var(--gray-200); border-radius:14px; padding:13px 14px; display:flex; align-items:center; gap:12px; transition:background .35s, border-color .35s; }
-        .hi-date { width:44px; flex-shrink:0; text-align:center; background:var(--gray-100); border-radius:10px; padding:7px 4px; }
-        .hi-date .hd-day  { font-size:18px; font-weight:800; color:var(--blue); line-height:1; }
-        .hi-date .hd-mon  { font-size:9px;  font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:.5px; }
-        .hi-info { flex:1; min-width:0; }
-        .hi-top  { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px; }
-        .hi-kegiatan { font-size:11.5px; font-weight:700; color:var(--blue-mid); background:#eff6ff; padding:1px 7px; border-radius:999px; text-transform:capitalize; }
-        .hi-jam  { font-size:11px; color:var(--gray-400); }
-        .hi-lokasi { font-size:11.5px; color:var(--gray-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .hi-lokasi i { font-size:10px; margin-right:3px; color:var(--gray-400); }
-        .btn-update-jam { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 4px 11px; height: 28px; background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 8px; font-size: 11px; font-weight: 700; color: #1d4ed8; cursor: pointer; font-family: "Plus Jakarta Sans", sans-serif; transition: all .2s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+        .history-list { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+        .history-item { background:var(--white); border:1px solid var(--gray-200); border-radius:16px; padding:14px; display:flex; align-items:flex-start; gap:14px; transition:all .25s; box-shadow:0 2px 8px rgba(0,0,0,0.02); position:relative; overflow:hidden; }
+        .history-item:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,30,80,.06); border-color:var(--gray-300); }
+        .hi-date { width:48px; flex-shrink:0; text-align:center; background:linear-gradient(135deg, var(--gray-50), var(--gray-100)); border: 1px solid var(--gray-200); border-radius:12px; padding:8px 4px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.5); }
+        .hi-date .hd-day  { font-size:19px; font-weight:800; color:var(--blue-mid); line-height:1.1; }
+        .hi-date .hd-mon  { font-size:9.5px; font-weight:700; color:var(--gray-500); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+        .hi-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; padding-top:2px; }
+        .hi-top  { display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; }
+        .hi-kegiatan { font-size:12.5px; font-weight:800; color:var(--gray-800); text-transform:capitalize; letter-spacing:0.2px; }
+        .hi-jam  { font-size:11.5px; font-weight:600; color:var(--gray-500); display:flex; align-items:center; gap:5px; }
+        .hi-jam i { color:var(--gray-400); font-size:11px; }
+        .hi-lokasi { font-size:11px; color:var(--gray-400); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px; }
+        .hi-lokasi i { font-size:10px; color:var(--gray-300); }
+        .btn-update-jam { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 6px 12px; background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 10px; font-size: 11.5px; font-weight: 700; color: #1d4ed8; cursor: pointer; font-family: "Plus Jakarta Sans", sans-serif; transition: all .2s; white-space: nowrap; -webkit-tap-highlight-color: transparent; width: fit-content; }
         .btn-update-jam:hover { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
         .btn-update-jam:disabled { opacity: .5; cursor: not-allowed; }
         .btn-update-jam i { font-size: 10px; }
@@ -614,20 +616,27 @@ function badge_status($s) {
         .absensi-form .form-group { margin-bottom:16px; }
         .form-label { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:var(--gray-600); text-transform:uppercase; letter-spacing:.6px; margin-bottom:7px; transition:color .35s; }
         .form-label i { font-size:10px; color:var(--blue-light); }
-        .form-control, .form-select { width:100%; height:46px; padding:0 14px; font-size:14px; font-family:"Plus Jakarta Sans",sans-serif; color:var(--gray-800); background:var(--gray-50); border:1.5px solid var(--gray-200); border-radius:12px; outline:none; transition:all .25s; -webkit-appearance:none; }
+        
+        .form-control { width:100%; height:46px; padding:0 14px; font-size:14px; font-family:"Plus Jakarta Sans",sans-serif; color:var(--gray-800); background:var(--gray-50); border:1.5px solid var(--gray-200); border-radius:12px; outline:none; transition:all .25s; -webkit-appearance:none; }
+        
+        /* Dropdown Berwarna untuk menarik perhatian */
+        .form-select {
+            width: 100%; height: 46px; padding: 0 40px 0 16px; font-size: 14px; font-weight: 700;
+            font-family: "Plus Jakarta Sans", sans-serif; color: var(--blue-mid);
+            background-color: #eff6ff; /* Background biru muda */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230066cc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
+            border: 2px solid #93c5fd; border-radius: 12px; outline: none; transition: all .25s;
+            -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+        }
+        .form-select:hover { background-color: #dbeafe; border-color: var(--blue-light); }
+        .form-select:focus { background-color: var(--white); border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,77,153,.15); }
+
         textarea.form-control { height:90px; padding:12px 14px; resize:none; line-height:1.5; }
         .input-readonly { background:var(--gray-100) !important; color:var(--gray-500); cursor:default; }
         .input-readonly:focus { border-color:var(--gray-200); box-shadow:none; }
-        .form-control:focus, .form-select:focus { background:var(--white); border-color:var(--blue-mid); box-shadow:0 0 0 3px rgba(0,77,153,.10); }
-
-        .status-pills { display:flex; flex-wrap:wrap; gap:8px; }
-        .status-pill { flex:1; min-width:calc(33% - 6px); height:38px; border-radius:10px; border:1.5px solid var(--gray-200); background:var(--gray-50); display:flex; align-items:center; justify-content:center; gap:5px; font-size:12px; font-weight:700; color:var(--gray-600); cursor:pointer; transition:all .2s; -webkit-tap-highlight-color:transparent; }
-        .status-pill.selected-hadir  { background:#dcfce7; border-color:#16a34a; color:#166534; }
-        .status-pill.selected-izin   { background:#dbeafe; border-color:#3b82f6; color:#1e40af; }
-        .status-pill.selected-sakit  { background:#ffedd5; border-color:#ea580c; color:#9a3412; }
-        .status-pill.selected-alfa   { background:#fef2f2; border-color:#dc2626; color:#991b1b; }
-        .status-pill.selected-cuti   { background:#f5f3ff; border-color:#7c3aed; color:#5b21b6; }
-        .status-pill.selected-dinas  { background:#ecfdf5; border-color:#059669; color:#065f46; }
+        .form-control:focus { background:var(--white); border-color:var(--blue-mid); box-shadow:0 0 0 3px rgba(0,77,153,.10); }
 
         .sesi-pills { display: flex; flex-wrap: wrap; gap: 8px; }
         .sesi-pill { padding: 7px 18px; border-radius: 999px; border: 1.5px solid var(--gray-200); background: var(--gray-50); font-size: 12.5px; font-weight: 600; color: var(--gray-600); cursor: pointer; transition: all .2s; font-family: "Plus Jakarta Sans", sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -746,9 +755,16 @@ function badge_status($s) {
         body.dark .menu-title { color:var(--dm-text); }
         body.dark .menu-desc  { color:var(--dm-muted); }
         body.dark .menu-arrow { background:var(--dm-card2); color:var(--dm-muted); }
-        body.dark .hi-date    { background:var(--dm-card2); }
+        body.dark .history-item { background:var(--dm-card); border-color:var(--dm-border); box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+        body.dark .history-item:hover { box-shadow:0 6px 16px rgba(0,0,0,.4); border-color:rgba(255,255,255,0.15); }
+        body.dark .hi-date    { background:var(--dm-card2); border-color:var(--dm-border); box-shadow: inset 0 2px 4px rgba(255,255,255,0.02); }
         body.dark .hi-date .hd-day { color:var(--yellow); }
-        body.dark .history-item { background:var(--dm-card); border-color:var(--dm-border); }
+        body.dark .hi-date .hd-mon { color:var(--dm-muted); }
+        body.dark .hi-kegiatan { color:var(--dm-text); }
+        body.dark .hi-jam { color:var(--dm-muted); }
+        body.dark .hi-jam i { color:var(--dm-muted); opacity: 0.7;}
+        body.dark .hi-lokasi { color:var(--dm-muted); }
+        body.dark .hi-lokasi i { color:var(--dm-muted); opacity: 0.5; }
         body.dark .history-empty { background:var(--dm-card); border-color:var(--dm-border); }
         body.dark .btn-lihat-semua { background:var(--dm-card); border-color:var(--dm-border); }
         body.dark .bottom-nav { background:var(--dm-nav); border-color:var(--dm-border); }
@@ -760,15 +776,13 @@ function badge_status($s) {
         body.dark .modal-header h3 { color:var(--yellow); }
         body.dark .modal-close { background:var(--dm-card2); color:var(--dm-muted); }
         body.dark .form-label { color:var(--dm-muted); }
-        body.dark .form-control, body.dark .form-select { background:var(--dm-card2); border-color:var(--dm-border); color:var(--dm-text); }
+        
+        body.dark .form-control { background:var(--dm-card2); border-color:var(--dm-border); color:var(--dm-text); }
+        body.dark .form-select { background-color: rgba(29, 78, 216, 0.15); border-color: rgba(59, 130, 246, 0.4); color: #93c5fd; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2393c5fd' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); box-shadow: none; }
+        body.dark .form-select:hover { background-color: rgba(29, 78, 216, 0.25); border-color: rgba(59, 130, 246, 0.6); }
+        body.dark .form-select:focus { background-color: var(--dm-card); border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+
         body.dark .input-readonly { background:var(--dm-bg) !important; color:var(--dm-muted); cursor:default; }
-        body.dark .status-pill { background:var(--dm-card2); border-color:var(--dm-border); color:var(--dm-muted); }
-        body.dark .status-pill.selected-hadir { background:rgba(22,163,74,.25);  border-color:#16a34a; color:#86efac; }
-        body.dark .status-pill.selected-izin  { background:rgba(59,130,246,.25); border-color:#3b82f6; color:#93c5fd; }
-        body.dark .status-pill.selected-sakit { background:rgba(234,88,12,.25);  border-color:#ea580c; color:#fdba74; }
-        body.dark .status-pill.selected-alfa  { background:rgba(220,38,38,.25);  border-color:#dc2626; color:#fca5a5; }
-        body.dark .status-pill.selected-cuti  { background:rgba(124,58,237,.25); border-color:#7c3aed; color:#c4b5fd; }
-        body.dark .status-pill.selected-dinas { background:rgba(5,150,105,.25);  border-color:#059669; color:#6ee7b7; }
         body.dark .helpdesk-section { background:var(--dm-card); border-color:var(--dm-border); }
         body.dark .helpdesk-header h3 { color:var(--dm-text); }
         body.dark .contact-btn { background:var(--dm-card2); border-color:var(--dm-border); color:var(--dm-text); }
@@ -1180,8 +1194,8 @@ function badge_status($s) {
             $month = strtoupper(substr($bln_id[$tgl->format('F')] ?? $tgl->format('M'), 0, 3));
             $jam_m = $h['jam_masuk']  ? substr($h['jam_masuk'], 0, 5)  : '--:--';
             $jam_k = $h['jam_keluar'] ? substr($h['jam_keluar'], 0, 5) : '--:--';
-            // Tombol update jam keluar: hanya jika sudah ada jam masuk, jam_keluar kosong, DAN tanggal = hari ini
-            $boleh_update = !empty($h['jam_masuk']) && empty($h['jam_keluar']) && ($h['tanggal'] === date('Y-m-d'));
+            // Tombol update jam keluar: hanya jika sudah ada jam masuk, jam_keluar kosong, tanggal = hari ini, DAN status hadir
+            $boleh_update = !empty($h['jam_masuk']) && empty($h['jam_keluar']) && ($h['tanggal'] === date('Y-m-d')) && ($h['status_kehadiran'] === 'hadir');
         ?>
         <div class="history-item" id="histitem-<?php echo (int)$h['id']; ?>">
             <div class="hi-date">
@@ -1193,7 +1207,7 @@ function badge_status($s) {
                     <span class="hi-kegiatan"><?php echo htmlspecialchars(str_replace('_',' ', $h['shift_atau_kegiatan'] ?? '-')); ?></span>
                     <?php echo badge_status($h['status_kehadiran']); ?>
                 </div>
-                <div class="hi-jam" id="hijam-<?php echo (int)$h['id']; ?>"><i class="fas fa-clock" style="font-size:10px;color:var(--gray-300);margin-right:3px;"></i><?php echo $jam_m; ?> &mdash; <?php echo $jam_k; ?></div>
+                <div class="hi-jam" id="hijam-<?php echo (int)$h['id']; ?>"><i class="fas fa-clock"></i><?php echo $jam_m; ?> &mdash; <?php echo $jam_k; ?></div>
                 <?php if (!empty($h['lokasi'])): ?>
                 <div class="hi-lokasi"><i class="fas fa-location-dot"></i><?php echo htmlspecialchars($h['lokasi']); ?></div>
                 <?php endif; ?>
@@ -1322,7 +1336,9 @@ function badge_status($s) {
 
                 <!-- Jam Masuk — otomatis dari server, tidak bisa diubah -->
                 <div class="form-group">
-                    <label class="form-label"><i class="fas fa-clock"></i> Jam Masuk</label>
+                    <label class="form-label" id="labelJamMasuk">
+                        <i class="fas fa-clock"></i> <span id="textJamMasuk">Jam Masuk</span>
+                    </label>
                     <div class="tp-trigger" id="tpMasukTrigger" style="cursor:default;opacity:.85;pointer-events:none;">
                         <i class="fas fa-clock tp-trigger-icon"></i>
                         <span class="tp-trigger-val" id="tpMasukDisplay"><?php echo date('H:i'); ?></span>
@@ -1330,21 +1346,23 @@ function badge_status($s) {
                     </div>
                     <div style="font-size:11px;color:var(--gray-400);margin-top:4px;display:flex;align-items:center;gap:4px;">
                         <i class="fas fa-circle-info" style="font-size:10px;"></i>
-                        Jam masuk tercatat otomatis sesuai waktu server dan tidak dapat diubah.
+                        Waktu tercatat otomatis sesuai jam server dan tidak dapat diubah.
                     </div>
                     <input type="hidden" name="jam_masuk" id="inputJamMasuk" value="<?php echo date('H:i:s'); ?>">
                 </div>
 
                 <!-- Jam Keluar (wajib untuk dosen mengajar, opsional untuk kegiatan lain & staff) -->
-                <div class="form-group">
+                <div class="form-group" id="grupJamKeluar">
                     <?php if ($position === 'dosen'): ?>
-                    <label class="form-label">
-                        <i class="fas fa-clock"></i> Jam Selesai
+                    <label class="form-label" id="labelJamKeluar">
+                        <i class="fas fa-clock"></i> <span id="textJamKeluar">Jam Selesai</span>
                         <span id="jamSelesaiWajib" style="color:var(--red);font-weight:700;"> *</span>
                         <span id="jamSelesaiOpsional" style="font-weight:400;font-style:italic;text-transform:none;display:none;"> (opsional)</span>
                     </label>
                     <?php else: ?>
-                    <label class="form-label"><i class="fas fa-clock"></i> Jam Keluar <span style="font-weight:400;font-style:italic;text-transform:none;">(opsional)</span></label>
+                    <label class="form-label" id="labelJamKeluar">
+                        <i class="fas fa-clock"></i> <span id="textJamKeluar">Jam Keluar</span> <span style="font-weight:400;font-style:italic;text-transform:none;">(opsional)</span>
+                    </label>
                     <?php endif; ?>
                     <div class="tp-trigger" id="tpKeluarTrigger" onclick="openTimePicker('keluar')">
                         <i class="fas fa-clock tp-trigger-icon"></i>
@@ -1364,9 +1382,9 @@ function badge_status($s) {
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-location-dot"></i> Lokasi</label>
                     <div class="input-wrap" style="position:relative;">
-                        <input type="text" name="lokasi" class="form-control"
-                               placeholder="Gedung / Ruang / Keterangan lokasi"
-                               id="inputLokasi" style="padding-right:42px;">
+                        <input type="text" name="lokasi" class="form-control input-readonly"
+                               placeholder="Otomatis terisi oleh sistem GPS"
+                               id="inputLokasi" style="padding-right:42px;" readonly>
                         <span id="gpsSpinner" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);
                               color:var(--gray-400);font-size:13px;display:none;">
                             <i class="fas fa-spinner fa-spin"></i>
@@ -1388,18 +1406,23 @@ function badge_status($s) {
                 <!-- Status Kehadiran -->
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-circle-dot"></i> Status Kehadiran</label>
-                    <div class="status-pills">
-                        <button type="button" class="status-pill selected-hadir" data-val="hadir" onclick="pilihStatus(this)">✓ Hadir</button>
-                        <button type="button" class="status-pill" data-val="izin"  onclick="pilihStatus(this)">Izin</button>
-                        <button type="button" class="status-pill" data-val="sakit" onclick="pilihStatus(this)">Sakit</button>
-                        <button type="button" class="status-pill" data-val="cuti"  onclick="pilihStatus(this)">Cuti</button>
+                    <select name="status_kehadiran" id="inputStatus" class="form-select" onchange="updateLabelsByStatus(this.value)">
+                        <option value="hadir" selected>Hadir</option>
+                        <option value="izin">Izin</option>
+                        <option value="sakit">Sakit</option>
+                        <option value="cuti">Cuti</option>
                         <?php if ($position === 'staff'): ?>
-                        <button type="button" class="status-pill" data-val="dinas_luar" onclick="pilihStatus(this)">Dinas</button>
+                        <option value="dinas_luar">Dinas</option>
                         <?php else: ?>
-                        <button type="button" class="status-pill" data-val="tugas_luar" onclick="pilihStatus(this)">Tugas Luar</button>
+                        <option value="tugas_luar">Tugas Luar</option>
                         <?php endif; ?>
-                    </div>
-                    <input type="hidden" name="status_kehadiran" id="inputStatus" value="hadir">
+                    </select>
+                </div>
+
+                <!-- Lama Cuti -->
+                <div class="form-group" id="grupLamaCuti" style="display:none;">
+                    <label class="form-label"><i class="fas fa-calendar-day"></i> Berapa Hari Cuti <span style="color:var(--red);font-weight:700;"> *</span></label>
+                    <input type="number" id="inputLamaCuti" class="form-control" placeholder="Contoh: 3" min="1">
                 </div>
 
                 <!-- Keterangan -->
@@ -2058,6 +2081,43 @@ function pilihSesi(el) {
     document.getElementById('inputSesiMengajar').value = el.dataset.sesi;
 }
 
+// ── Modifikasi UI & Label Berdasarkan Status (Cuti, Sakit, Dinas) ─────────────
+function updateLabelsByStatus(status) {
+    const textJamMasuk = document.getElementById('textJamMasuk');
+    const textJamKeluar = document.getElementById('textJamKeluar');
+    const grupJamKeluar = document.getElementById('grupJamKeluar');
+    const grupLamaCuti = document.getElementById('grupLamaCuti');
+    const inputLamaCuti = document.getElementById('inputLamaCuti');
+    const tpKeluarDisplay = document.getElementById('tpKeluarDisplay');
+
+    // Default setting awal
+    if (textJamMasuk) textJamMasuk.textContent = 'Jam Masuk';
+    if (textJamKeluar) textJamKeluar.textContent = positionUser === 'dosen' ? 'Jam Selesai' : 'Jam Keluar';
+    if (grupJamKeluar) grupJamKeluar.style.display = '';
+    if (grupLamaCuti) grupLamaCuti.style.display = 'none';
+    if (inputLamaCuti) inputLamaCuti.required = false;
+
+    if (tpKeluarDisplay && (tpKeluarDisplay.textContent === 'Pilih jam keluar' || tpKeluarDisplay.textContent === 'Pilih jam selesai')) {
+        tpKeluarDisplay.textContent = positionUser === 'dosen' ? 'Pilih jam selesai' : 'Pilih jam keluar';
+    }
+
+    if (status === 'sakit' || status === 'izin') {
+        if (textJamMasuk) textJamMasuk.textContent = 'Jam Rekam';
+        if (grupJamKeluar) grupJamKeluar.style.display = 'none'; // Sembunyikan Jam Keluar jika sakit/izin
+    } else if (status === 'cuti') {
+        if (textJamMasuk) textJamMasuk.textContent = 'Jam Rekam';
+        if (grupJamKeluar) grupJamKeluar.style.display = 'none';
+        if (grupLamaCuti) grupLamaCuti.style.display = ''; // Tampilkan Berapa Hari Cuti
+        if (inputLamaCuti) inputLamaCuti.required = true;
+    } else if (status === 'dinas_luar' || status === 'tugas_luar') {
+        if (textJamMasuk) textJamMasuk.textContent = 'Jam Mulai';
+        if (textJamKeluar) textJamKeluar.textContent = 'Jam Selesai';
+        if (tpKeluarDisplay && (tpKeluarDisplay.textContent === 'Pilih jam keluar' || tpKeluarDisplay.textContent === 'Pilih jam selesai')) {
+            tpKeluarDisplay.textContent = positionUser === 'dosen' ? 'Pilih jam selesai' : 'Pilih jam keluar';
+        }
+    }
+}
+
 (function initSesiMengajar() {
     const sel = document.getElementById('selectJenisKegiatan');
     if (!sel) return;
@@ -2122,6 +2182,9 @@ function pilihSesi(el) {
         });
     });
 
+    // Inisialisasi awal layout berdasarkan status bawaan
+    const inputStatus = document.getElementById('inputStatus');
+    if (inputStatus) updateLabelsByStatus(inputStatus.value);
 })();
 
 let gpsRequested = false;
@@ -2226,16 +2289,6 @@ document.getElementById('modalAbsensi').addEventListener('click', function (e) {
     if (e.target === this) closeModal();
 });
 
-function pilihStatus(el) {
-    document.querySelectorAll('.status-pill').forEach(p => {
-        p.className = 'status-pill';
-    });
-    const val = el.dataset.val;
-    const cls = val === 'dinas_luar' || val === 'tugas_luar' ? 'dinas' : val;
-    el.classList.add('selected-' + cls);
-    document.getElementById('inputStatus').value = val;
-}
-
 document.getElementById('formAbsensi').addEventListener('submit', function (e) {
     e.preventDefault();
     cekDuplikatLaluSubmit();
@@ -2259,8 +2312,11 @@ function cekDuplikatLaluSubmit() {
         const jamSelesai = document.getElementById('inputJamKeluar').value;
         const errEl = document.getElementById('errorJamSelesai');
         const triggerEl = document.getElementById('tpKeluarTrigger');
+        const grupJamKeluar = document.getElementById('grupJamKeluar');
+        const isJamKeluarHidden = grupJamKeluar && grupJamKeluar.style.display === 'none';
 
-        if (jenisKegiatan === 'mengajar' && !jamSelesai) {
+        // Hanya validasi jam selesai bila memang form jam selesai tidak disembunyikan
+        if (jenisKegiatan === 'mengajar' && !jamSelesai && !isJamKeluarHidden) {
             if (errEl) { errEl.style.display = 'flex'; }
             if (triggerEl) { triggerEl.style.outline = '2px solid var(--red)'; triggerEl.style.outlineOffset = '2px'; }
             document.getElementById('tpKeluarTrigger').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2352,6 +2408,27 @@ function lanjutkanAbsensi() {
 function submitAbsensi() {
     const btn  = document.getElementById('btnSubmitAbsensi');
     const form = document.getElementById('formAbsensi');
+    
+    // --- Proses Menambahkan Lama Cuti ke Keterangan ---
+    const statusVal = document.getElementById('inputStatus').value;
+    const ketEl = document.getElementById('inputKeterangan');
+    const cutiEl = document.getElementById('inputLamaCuti');
+    
+    if (ketEl) {
+        if (ketEl.dataset.originalValue === undefined) {
+            ketEl.dataset.originalValue = ketEl.value; // simpan input asli user
+        }
+        if (statusVal === 'cuti' && cutiEl && cutiEl.value) {
+            let ori = ketEl.dataset.originalValue.trim();
+            let days = cutiEl.value + " Hari";
+            ketEl.value = ori ? (days + " - " + ori) : days;
+        } else {
+            // Restore jika bukan cuti
+            ketEl.value = ketEl.dataset.originalValue;
+        }
+    }
+    // ---------------------------------------------------
+
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
     btn.disabled  = true;
 
@@ -2892,7 +2969,6 @@ function toggleGpw(inputId, iconId) {
         });
     }
 })();
-
 </script>
 </body>
 </html>
