@@ -2,11 +2,11 @@
 // Koneksi ke database hosting eksternal
 // Gunakan localhost untuk koneksi internal di server yang sama
 
-$host = getenv('103.58.102.59');
+$host = getenv('');
 $port = getenv('3306') ?: '3306';
-$db   = getenv('salutpur_demo_trace');
-$user = getenv('salutpur_demo');
-$pass = getenv('1t6NE0!wlmCs]vlO');
+$db   = getenv('');
+$user = getenv('');
+$pass = getenv('');
 
 // Create connection
 $koneksi = new mysqli($host, $user, $pass, $db, $port);
